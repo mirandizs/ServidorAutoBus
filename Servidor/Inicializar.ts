@@ -5,7 +5,7 @@ const multer = require('multer') // Gestor de ficheiros
 const fs = require('fs') // Para aceder pastas
 const cors = require('cors') // Para ser possivel fazer pedidos de outros dominios (Do localhost:4200 para o localhost:3000 neste caso)
 
-// SETUP PARA SESSOES (COOKIES).
+// SETUP PARA SESSOES (COOKIES).a
 const SessionDatabase = {
     host: 'localhost',
     user: 'root',
@@ -36,6 +36,7 @@ Servidor.use(express.urlencoded({ extended: true }));
 
 // Converte dados de JSON, caso haja
 Servidor.use(express.json());
+
 Servidor.use(cors({
     origin: 'http://localhost:4200', // Permite pedidos de localhost:4200 (Angular)
     credentials: true, // Permite cookies

@@ -9,7 +9,9 @@ const DB = MySQL.createPool({
     dateStrings: true, // Para que as datas sejam enviadas como strings, em vez de objetos Date
 }).promise();
 
+
+const variaveltest = true
 // Exporta as variáveis abaixo para serem usadas em outros arquivos
 export  {
-    DB,
+    DB, variaveltest, 
 };

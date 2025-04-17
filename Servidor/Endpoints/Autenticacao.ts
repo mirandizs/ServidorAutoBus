@@ -2,6 +2,8 @@ import express from 'express'
 const router = express.Router();
 import { DB } from '../Globais.ts';
 
+
+
 router.post('/autenticar', async (Pedido, Resposta) => {
     if (Pedido.session.utilizador) {
         Resposta.send(Pedido.session.dados_utilizador)
@@ -55,5 +57,13 @@ router.post('/logout', async (Pedido, Resposta) => {
     Resposta.send(true) 
 });
 
+
+
+router.post('criar-conta', async (Pedido, Resposta) => {
+    const QUERY = `INSERT INTO utilizadores VALUES ()`;
+    const [Resultado] = await DB.query(QUERY)
+
+    Resposta.send(Resultado)
+})
 
 module.exports = router;
