@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "./Servidor"
+  ],
+  "ext": "ts",
+  "exec": "ts-node --files Servidor/Inicializar.ts"
+}
