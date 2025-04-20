@@ -59,11 +59,35 @@ router.post('/logout', async (Pedido, Resposta) => {
 
 
 
-router.post('criar-conta', async (Pedido, Resposta) => {
-    const QUERY = `INSERT INTO utilizadores VALUES ()`;
-    const [Resultado] = await DB.query(QUERY)
+router.post('/criar_conta', async (Pedido, Resposta) => {
 
-    Resposta.send(Resultado)
+    const Campos = Pedido.body // Body do pedido, com os dados passados
+    const ValoresParaInserir = [
+        Campos.nome,
+        Campos.nif,
+        Campos.nascimento,
+        Campos.telefone,
+        Campos.localidade,
+        Campos.email,
+        Campos.password,
+        1, // Tipo de utilizador
+        1, // Atividade
+    ]
+    
+    const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[]
+
+
+    if (Resultado.affectedRows > 0) { // Se tiver inserido algum utilizador
+        
+        Pedido.session.dados_utilizador = Campos // guarda a sessao do utilizador
+        Pedido.session.utilizador = Campos.nome
+        
+        Resposta.send(true)
+    } else {
+        Resposta.statusMessage = 'Erro a criar conta!' // Define a mensagem de erro
+        Resposta.status(401).send() // Manda um codigo de erro com resposta vazia
+    }
 })
 
 module.exports = router;

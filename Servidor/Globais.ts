@@ -1,4 +1,5 @@
 import MySQL from 'mysql2';
+import nodemailer from 'nodemailer';
 
 // Conexão ao MySQL
 const DB = MySQL.createPool({
@@ -10,8 +11,16 @@ const DB = MySQL.createPool({
 }).promise();
 
 
-const variaveltest = true
+var ServicoEmail = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'gabrielmonteiroferreira@gmail.com',
+        pass: 'eijn thtg ahsd fnco'
+    }
+});
+
+
 // Exporta as variáveis abaixo para serem usadas em outros arquivos
-export  {
-    DB, variaveltest, 
+export {
+    DB, ServicoEmail,
 };
