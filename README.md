@@ -11,6 +11,13 @@ O nome dos parametros está definido no servidor (ex: /utilizadores/:nome)
 - Pedido.body - Quando as informa
 Geralmente é sempre usado em métodos
 
+## Sessoes
+
+Para aceder a dados guardados na sessao do utilizador que realizou o pedido para um endpoint, usa-se:
+Pedido.session
+
+Exemplo: Pedido.session.utilizador (Nome do utilizador) ou Pedido.session.dados_utilizador (NIF, telefone, email, etc)
+
 ## Tipos de body (Content-Type)
 Isto é mais para o front-end. O servidor já converte estes tipos automaticamente
 
