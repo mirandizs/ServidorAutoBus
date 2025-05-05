@@ -27,7 +27,7 @@ router.patch('/definicoes/editar-utilizador', async (Pedido, Resposta) => {
 
 
 
-router.patch('/definicoes/privacidade/', async (Pedido, Resposta) => {
+router.patch('/definicoes/privacidade', async (Pedido, Resposta) => {
     const Body = Pedido.body // Body do pedido, com os dados passados
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
