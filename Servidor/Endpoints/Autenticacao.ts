@@ -37,6 +37,7 @@ router.post('/login', async (Pedido, Resposta) => {
         Pedido.session.utilizador = DadosUtilizador.nome // Guarda o email na sessao
 
         Resposta.send(DadosUtilizador) // Envia os dados do utilizador de volta
+        console.log('Sessão iniciada')
     }
     else {
         Resposta.statusMessage = 'Utilizador ou password invalidos!' // Define a mensagem de erro

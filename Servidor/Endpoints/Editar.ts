@@ -13,7 +13,7 @@ router.patch('/definicoes/editar-utilizador', async (Pedido, Resposta) => {
             SET 
                 nome = ?, 
                 nascimento = ?, 
-                localidade = ? 
+                localidade = ?,
                 telefone = ?,
                 email = ?,
                 tipo_utilizador = ?,
@@ -45,22 +45,22 @@ router.patch('/definicoes/privacidade', async (Pedido, Resposta) => {
 
 
 
-router.patch('/definicoes/minha-conta', async (Pedido, Resposta) => {
+router.patch('/minha-conta', async (Pedido, Resposta) => {
+    console.log(Pedido.body)
     const id = Pedido.session.dados_utilizador?.id_utilizador
-    const { nome, nascimento, telemovel, localidade } = Pedido.body
+    const { nome, nascimento, telefone, localidade } = Pedido.body
 
     const query = `
         UPDATE utilizadores 
         SET 
             nome = ?, 
             nascimento = ?, 
-            telefone = ?
+            telefone = ?,
             localidade = ?
-        WHERE idutilizadores = ?
-    `
+        WHERE id_utilizador = ?`
 
     try {
-        const [Resultado] = await DB.query(query, [nome, nascimento, telemovel, localidade, id])
+        const [Resultado] = await DB.query(query, [nome, nascimento, telefone, localidade, id])
         Resposta.send({ sucesso: true, resultado: Resultado })
     } 
     

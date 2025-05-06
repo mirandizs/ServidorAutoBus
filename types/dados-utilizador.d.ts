@@ -11,6 +11,7 @@ interface DadosUtilizador {
     telefone: number;
     localidade: string;
     email: string;
+    //password: string; // Nao e necessario, pois a password nunca e enviada para o cliente
     tipo_utilizador: number;
     atividade: number;
   }
