@@ -23,3 +23,5 @@ router.get('/recibos', async (Pedido, Resposta) => {
 
     Resposta.send(Resultado)
 });
+
+module.exports = router;
