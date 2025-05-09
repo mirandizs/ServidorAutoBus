@@ -84,7 +84,8 @@ router.post('/criar_conta', async (Pedido, Resposta) => {
         Pedido.session.dados_utilizador = Campos // guarda a sessao do utilizador
         Pedido.session.utilizador = Campos.nome
         
-        Resposta.send(true)
+        console.log('Conta criada')
+        Resposta.redirect('/foto_perfil'); // Envia os dados do utilizador de volta
     } else {
         Resposta.statusMessage = 'Erro a criar conta!' // Define a mensagem de erro
         Resposta.status(401).send() // Manda um codigo de erro com resposta vazia

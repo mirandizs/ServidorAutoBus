@@ -4,6 +4,7 @@ const router = express.Router()
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
+import { DB } from '../Globais.ts';
 
 
 // STORAGE SETUP
@@ -38,6 +39,8 @@ router.get('/imagens/utilizador', (Pedido, Resposta) => {
     Resposta.status(404).send('Imagem não encontrada');
 });
 
+
+
 // Image MENU POST
 router.post('/imagens/utilizadores', async (Pedido, Resposta) => {
 
@@ -55,5 +58,30 @@ router.post('/imagens/utilizadores', async (Pedido, Resposta) => {
     }
 });
 
+
+router.post('/imagens/criar_conta', upload.single('foto'), async (Pedido, Resposta) => {
+    try {
+        const { nif } = Pedido.body;
+        const file = Pedido.file;
+
+        if (!nif) {
+            Resposta.status(400).json({ message: 'NIF é obrigatório.' });
+            return;
+        }
+
+        const nomeImagem = file ? file.filename : 'default.jpg';
+
+        // Atualiza a base de dados com a imagem (real ou default)
+        const sql = 'UPDATE utilizadores SET foto = ? WHERE nif = ?';
+        await DB.execute(sql, [nomeImagem, nif]);
+
+        Resposta.status(200).json({ message: 'Conta criada com imagem.', filename: nomeImagem });
+    } 
+    
+    catch (err: any) {
+        console.error(err);
+        Resposta.status(500).json({ error: err.message });
+    }
+});
 
 module.exports = router;
