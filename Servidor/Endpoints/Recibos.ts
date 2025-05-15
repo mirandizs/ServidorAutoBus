@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router();
 import { DB } from '../Globais.ts';
 
+
 // router.get('/recibos', async (Pedido, Resposta) => {
 //     const id = Pedido.session.dados_utilizador?.id_utilizador
 
@@ -26,7 +27,7 @@ import { DB } from '../Globais.ts';
 
 
 
-router.post('/comprar', async (Pedido, Resposta) => {
+router.post('/compras', async (Pedido, Resposta) => {
 
     const informacoesPedido = Pedido.body // body do pedido, com os dados passados~
     const idUtilizador = Pedido.session.dados_utilizador?.id_utilizador
