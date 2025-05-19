@@ -16,7 +16,9 @@ router.get('/viagens', async (Pedido, Resposta) => {
           p1.idautocarro,
           p1.local AS local_partida,
           p2.local AS local_chegada,
-          p1.hora_partida AS hora_partida
+          p1.hora_partida AS hora_partida,
+          p1.id_ponto AS id_ponto_partida,
+          p2.id_ponto AS id_ponto_chegada
 
       FROM pontos_rotas p1
       INNER JOIN pontos_rotas p2 ON p1.idautocarro = p2.idautocarro

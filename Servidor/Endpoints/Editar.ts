@@ -61,9 +61,15 @@ router.patch('/minha-conta', async (Pedido, Resposta) => {
 
     try {
         const [Resultado] = await DB.query(query, [nome, nascimento, telefone, localidade, id])
+        if (Pedido.session.dados_utilizador) {
+            Pedido.session.dados_utilizador.nome = nome
+            Pedido.session.dados_utilizador.nascimento = nascimento
+            Pedido.session.dados_utilizador.telefone = telefone
+            Pedido.session.dados_utilizador.localidade = localidade
+        }
         Resposta.send({ sucesso: true, resultado: Resultado })
-    } 
-    
+    }
+
     catch (erro) {
         console.error('Erro ao editar utilizador:', erro)
         Resposta.status(500).send({ sucesso: false, erro: 'Erro ao editar dados.' })

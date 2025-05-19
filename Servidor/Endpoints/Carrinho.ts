@@ -26,4 +26,18 @@ router.get('/carrinho', async (Pedido, Resposta) => {
     Resposta.send(Resultado)
 })
 
+router.post('/carrinho', async (Pedido, Resposta) => {
+    const id = Pedido.session.dados_utilizador?.id_utilizador
+
+    const query = `
+        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada) 
+        VALUES (?, ?, ?) 
+    `; //calcular o preco 
+
+    const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada])
+    console.log(Resultado)
+
+    Resposta.send()
+})
+
 module.exports = router
