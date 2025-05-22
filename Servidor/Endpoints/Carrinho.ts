@@ -9,6 +9,7 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 
     const query = `
         SELECT 
+            carrinho.preco,
             carrinho.id_ponto_partida,
             carrinho.id_ponto_chegada,
             partida.local AS local_partida,

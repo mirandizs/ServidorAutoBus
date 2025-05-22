@@ -3,13 +3,16 @@ const router = express.Router();
 import { DB } from '../Globais.ts';
 
 
+//ROUTER DAS COMPRAS
+//este router é para buscar as informações da compra que esta na base de dados para conseguir mostrar as compras realizadas ao utilizador
 router.get('/compras', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
     const query = `
         SELECT 
             r.id_compraRealizada,
-            r.data_compra,
+            DATE_FORMAT(r.data_compra, '%d/%m/%Y') AS data_compra,  
+            r.preco,
             p1.local AS local_partida,
             p2.local AS local_chegada
         FROM compras AS r
@@ -17,6 +20,7 @@ router.get('/compras', async (Pedido, Resposta) => {
         INNER JOIN pontos_rotas AS p2 ON r.id_ponto_chegada = p2.id_ponto
         WHERE r.id_utilizador = ${id}
     `;
+    //na query, "DATE_FORMAT(r.data_compra, '%d/%m/%Y') AS data_compra" isto foi feito para formatar a data de forma a ficar mais legível para o utilizador, ou seja, de YYYY-MM-DD para DD/MM/YYYY, tirando a hora em que foi comprado o bilhete
 
     const [Resultado] = await DB.query(query)
 
@@ -25,6 +29,7 @@ router.get('/compras', async (Pedido, Resposta) => {
 
 
 
+//ROUTER DAS COMPRAS
 router.post('/comprar', async (Pedido, Resposta) => {
 
     const informacoesPedido = Pedido.body // body do pedido, com os dados passados~
@@ -79,6 +84,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
     
     const ValoresPassados:any[] = []
 
+    //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
     Carrinho.forEach((Bilhete: any) => {
         queryCompras += `(?, ?, ?, ?),`;
         ValoresPassados.push(
