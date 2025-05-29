@@ -3,7 +3,7 @@ const router = express.Router();
 import { DB } from '../Globais.ts';
 
 
-
+//router para obter os bilhetes no carrinho
 router.get('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
@@ -27,6 +27,8 @@ router.get('/carrinho', async (Pedido, Resposta) => {
     Resposta.send(Resultado)
 })
 
+
+// router de adicionar um bilhete ao carrinho
 router.post('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
@@ -40,5 +42,24 @@ router.post('/carrinho', async (Pedido, Resposta) => {
 
     Resposta.send()
 })
+
+
+
+
+router.delete('/carrinho', async (Pedido, Resposta) => {
+    const id = Pedido.session.dados_utilizador?.id_utilizador
+    const id_ponto_partida = Pedido.body.id_ponto_partidaq
+    const id_ponto_chegada = Pedido.body.id_ponto_chegada
+
+    const query = `
+        DELETE FROM carrinho 
+        WHERE id_utilizador = ? AND id_ponto_partida = ? AND id_ponto_chegada = ?
+    `;
+    
+    const [Resultado] = await DB.execute(query, [id, id_ponto_partida, id_ponto_chegada])
+    
+    console.log(Resultado)
+    Resposta.send()
+}) 
 
 module.exports = router
