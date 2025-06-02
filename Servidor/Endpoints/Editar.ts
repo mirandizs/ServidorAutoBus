@@ -1,6 +1,7 @@
 import express from 'express'
 const router = express.Router();
 import { DB } from '../Globais.ts';
+import multer from 'multer';
 
 
 
@@ -45,10 +46,21 @@ router.patch('/definicoes/privacidade', async (Pedido, Resposta) => {
 
 
 
+
+
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'Server/Uploads'),
+    filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
+});
+const upload = multer({ storage });
+
+
+
 router.patch('/minha-conta', async (Pedido, Resposta) => {
-    console.log(Pedido.body)
-    const id = Pedido.session.dados_utilizador?.id_utilizador
-    const { nome, nascimento, telefone, localidade } = Pedido.body
+    const id = Pedido.session.dados_utilizador?.id_utilizador;
+    const { nome, nascimento, telefone, localidade } = Pedido.body;
+    const nomeImagem = Pedido.file?.filename;
 
     const query = `
         UPDATE utilizadores 
@@ -56,23 +68,30 @@ router.patch('/minha-conta', async (Pedido, Resposta) => {
             nome = ?, 
             nascimento = ?, 
             telefone = ?,
-            localidade = ?
-        WHERE id_utilizador = ?`
+            localidade = ?,
+            ${nomeImagem ? 'foto = ?,' : ''}
+            atualizado_em = NOW()
+        WHERE id_utilizador = ?`;
+
+    const parametros = nomeImagem
+        ? [nome, nascimento, telefone, localidade, nomeImagem, id]
+        : [nome, nascimento, telefone, localidade, id];
 
     try {
-        const [Resultado] = await DB.query(query, [nome, nascimento, telefone, localidade, id])
-        if (Pedido.session.dados_utilizador) {
-            Pedido.session.dados_utilizador.nome = nome
-            Pedido.session.dados_utilizador.nascimento = nascimento
-            Pedido.session.dados_utilizador.telefone = telefone
-            Pedido.session.dados_utilizador.localidade = localidade
-        }
-        Resposta.send({ sucesso: true, resultado: Resultado })
-    }
+        await DB.execute(query.replace(', atualizado_em', 'atualizado_em'), parametros);
 
-    catch (erro) {
-        console.error('Erro ao editar utilizador:', erro)
-        Resposta.status(500).send({ sucesso: false, erro: 'Erro ao editar dados.' })
+        if (Pedido.session.dados_utilizador) {
+            Pedido.session.dados_utilizador.nome = nome;
+            Pedido.session.dados_utilizador.nascimento = nascimento;
+            Pedido.session.dados_utilizador.telefone = telefone;
+            Pedido.session.dados_utilizador.localidade = localidade;
+            if (nomeImagem) Pedido.session.dados_utilizador.foto = nomeImagem;
+        }
+
+        Resposta.send({ sucesso: true, filename: nomeImagem });
+    } catch (erro) {
+        console.error('Erro ao editar utilizador:', erro);
+        Resposta.status(500).send({ sucesso: false, erro: 'Erro ao editar dados.' });
     }
 });
 
