@@ -9,16 +9,16 @@ router.post('/email-confirmacao', async (Pedido, Resposta) => {
     const Email = Pedido.session.dados_utilizador?.email
 
     const OpcoesEmail = {
-        from: 'Auto Bus',
+        from: 'AutoBus',
         to: Email,
         subject: 'Código de Verificação',
         text: 'i hope this works',
     }
 
-
     if (Email) {
         const NovoCodigo = Math.floor(Math.random() * 1000000) // Gera um numero aleatorio entre 0 e 999999
         Pedido.session.codigo_confirmacao = NovoCodigo // Guarda o codigo na sessao
+
 
         ServicoEmail.sendMail(OpcoesEmail, (Erro, Info) => {
             {
