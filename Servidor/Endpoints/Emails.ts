@@ -9,7 +9,7 @@ router.post('/email-confirmacao', async (Pedido, Resposta) => {
     const Email = Pedido.session.dados_utilizador?.email
 
     const OpcoesEmail = {
-        from: 'AutoBus',
+        from: 'Auto Bus',
         to: Email,
         subject: 'Código de Verificação',
         text: 'i hope this works',

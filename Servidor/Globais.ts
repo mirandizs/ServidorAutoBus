@@ -14,7 +14,7 @@ const DB = MySQL.createPool({
 var ServicoEmail = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'autobus.pap@gmail.com', //'gabrielmonteiroferreira@gmail.com',
+        user: 'gabrielmonteiroferreira@gmail.com',
         pass: 'eijn thtg ahsd fnco'
     }
 });
