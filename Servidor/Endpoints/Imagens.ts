@@ -1,5 +1,5 @@
 
-import express from 'express'
+import express, { NextFunction } from 'express'
 const router = express.Router()
 import multer from 'multer'
 import path from 'path'
@@ -7,50 +7,67 @@ import fs from 'fs'
 import { DB } from '../Globais.ts';
 
 
-// STORAGE SETUP
-const storage = multer.diskStorage({
+const storage = multer.diskStorage({ //multer é para processar imagens em url_search params
     destination: (req, file, cb) => {
-        cb(null, 'Server/images/menu-thumbnails');
+        cb(null, 'Servidor/Uploads');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + "_" + file.originalname); // Unique filename
+        const ext = path.extname(file.originalname)
+        const NomeFicheiro = String(req.session.dados_utilizador!.nif) + ext
+        cb(null, NomeFicheiro); // cb é para processar a foto
     }
 });
-const upload = multer({ storage });
+const ProcessarImagemUtilizador = multer({ storage });
 
 
 // Image GET
 const PastaUploads = path.join(__dirname, "../Uploads")
 const EXTENSOES_SUPORTADAS = ['.jpg', '.jpeg', '.png', '.webp'];
 
-router.get('/imagens/utilizador', (Pedido, Resposta) => {
-    const utilizador = Pedido.session.utilizador
-
+function ProcurarImagem(NIF: string | number) {
     for (const ext of EXTENSOES_SUPORTADAS) {
-        const caminho = path.join(PastaUploads, `${utilizador}${ext}`);
+        const caminho = path.join(PastaUploads, `${NIF}${ext}`);
         const Existe = fs.existsSync(caminho)
 
         if (Existe) {
-            Resposta.sendFile(caminho);
-            return
+            return caminho
         }
     }
+    return undefined
+}
 
-    Resposta.status(404).send('Imagem não encontrada');
+function ApagarImagemAntiga(Pedido: Express.Request, Resposta:Express.Response, next:NextFunction) {
+
+    const ImagemAntiga = ProcurarImagem(Pedido.session.dados_utilizador!.nif!)
+    if (ImagemAntiga) {
+        fs.unlinkSync(ImagemAntiga); // apaga a imagem antiga
+    }
+    next();
+}
+
+
+// Carregar imagem do utilizador
+router.get('/imagens/utilizador/:nif', (Pedido, Resposta) => {
+    const nif = Pedido.params.nif || Pedido.session.dados_utilizador?.nif
+
+    const ImagemUtilizador = ProcurarImagem(nif!)
+    if (ImagemUtilizador) {
+        Resposta.sendFile(ImagemUtilizador)
+    } else {
+        Resposta.status(404).send('Imagem não encontrada');
+    }
 });
 
 
 
-// Image MENU POST
-router.post('/imagens/utilizadores', async (Pedido, Resposta) => {
+// Alterar imagem do utilizador
+router.post('/imagens/utilizador', ApagarImagemAntiga, ProcessarImagemUtilizador.single('foto'), async (Pedido, Resposta) => {
 
     try {
         if (!Pedido.file) {
             Resposta.status(400).send({ message: 'No file uploaded' });
         }
-        const FileName = Pedido.file?.filename
-        const FileUrl = `http://localhost:3000/imagens/utilizadores/${FileName}`
-        Resposta.send({ url: FileUrl, filename: FileName });
+        Resposta.send();
 
     } catch (err: any) {
         console.warn(err);
@@ -59,25 +76,16 @@ router.post('/imagens/utilizadores', async (Pedido, Resposta) => {
 });
 
 
-router.post('/imagens/criar_conta', upload.single('foto'), async (Pedido, Resposta) => {
+router.post('/imagens/criar_conta', ProcessarImagemUtilizador.single('foto'), async (Pedido, Resposta) => {
     try {
-        const { nif } = Pedido.body;
         const file = Pedido.file;
-
-        if (!nif) {
+        if (!file) {
             Resposta.status(400).json({ message: 'NIF é obrigatório.' });
             return;
         }
+        Resposta.status(200).json({ message: 'Conta criada com imagem.' });
+    }
 
-        const nomeImagem = file ? file.filename : 'default.jpg';
-
-        // Atualiza a base de dados com a imagem (real ou default)
-        const sql = 'UPDATE utilizadores SET foto = ? WHERE nif = ?';
-        await DB.execute(sql, [nomeImagem, nif]);
-
-        Resposta.status(200).json({ message: 'Conta criada com imagem.', filename: nomeImagem });
-    } 
-    
     catch (err: any) {
         console.error(err);
         Resposta.status(500).json({ error: err.message });

@@ -32,16 +32,30 @@ router.patch('/editar-privacidade', async (Pedido, Resposta) => {
     const Body = Pedido.body // Body do pedido, com os dados passados
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
-    const query = `
+    console.log(Body)
+    if (Body.codigo == Pedido.session.codigo_confirmacao) {
+        const query = Body.email ? `
             UPDATE utilizadores 
             SET 
-                email = ?,
+                email = ?
+            WHERE id_utilizador = ?`
+        : `
+            UPDATE utilizadores 
+            SET 
                 password = ?
             WHERE id_utilizador = ?`
 
-    await DB.execute(query, [Body.email, Body.password, id])
+        await DB.execute(query, [Body.email || Body.password, id])
 
-    Resposta.send(true)
+        if (Body.email) {
+            Pedido.session.dados_utilizador!.email = Body.email
+        }
+
+        Resposta.send(true)
+    }
+    else{
+        Resposta.status(401).send()
+    }
 });
 
 
@@ -60,7 +74,6 @@ const upload = multer({ storage });
 router.patch('/minha-conta', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador;
     const { nome, nascimento, telefone, localidade } = Pedido.body;
-    const nomeImagem = Pedido.file?.filename;
 
     const query = `
         UPDATE utilizadores 
@@ -68,28 +81,24 @@ router.patch('/minha-conta', async (Pedido, Resposta) => {
             nome = ?, 
             nascimento = ?, 
             telefone = ?,
-            localidade = ?,
-            ${nomeImagem ? 'foto = ?,' : ''}
-            atualizado_em = NOW()
+            localidade = ?
         WHERE id_utilizador = ?`;
 
-    const parametros = nomeImagem
-        ? [nome, nascimento, telefone, localidade, nomeImagem, id]
-        : [nome, nascimento, telefone, localidade, id];
+    const parametros = [nome, nascimento, telefone, localidade, id];
 
     try {
-        await DB.execute(query.replace(', atualizado_em', 'atualizado_em'), parametros);
+        await DB.execute(query, parametros);
 
         if (Pedido.session.dados_utilizador) {
             Pedido.session.dados_utilizador.nome = nome;
             Pedido.session.dados_utilizador.nascimento = nascimento;
             Pedido.session.dados_utilizador.telefone = telefone;
             Pedido.session.dados_utilizador.localidade = localidade;
-            if (nomeImagem) Pedido.session.dados_utilizador.foto = nomeImagem;
         }
-
-        Resposta.send({ sucesso: true, filename: nomeImagem });
-    } catch (erro) {
+        Resposta.send();
+    } 
+    
+    catch (erro) {
         console.error('Erro ao editar utilizador:', erro);
         Resposta.status(500).send({ sucesso: false, erro: 'Erro ao editar dados.' });
     }

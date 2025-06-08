@@ -20,7 +20,24 @@ var ServicoEmail = nodemailer.createTransport({
 });
 
 
-// Exporta as variáveis abaixo para serem usadas em outros arquivos
+function CalcularPreco(Viagem: any) {
+    const R = 6371; // Raio da Terra em km
+    const toRad = (graus: number) => graus * Math.PI / 180
+
+    const dLat = toRad(Viagem.chegada_latitude - Viagem.partida_latitude)
+    const dLon = toRad(Viagem.chegada_longitude - Viagem.partida_longitude)
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(Viagem.partida_latitude)) * Math.cos(toRad(Viagem.chegada_latitude)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const Distancia = R * c
+    const Preco = Distancia/10
+    return Preco; 
+}
+
 export {
-    DB, ServicoEmail,
+    DB, ServicoEmail, CalcularPreco
 };

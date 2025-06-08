@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { DB } from '../Globais.ts';
+import { CalcularPreco, DB } from '../Globais.ts';
 
 
 //router para obter os bilhetes no carrinho
@@ -32,12 +32,28 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 router.post('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
+    const QueryInfo = `
+      SELECT * FROM pontos_rotas
+      WHERE id_ponto = ${Pedido.body.id_ponto_partida} OR id_ponto=${Pedido.body.id_ponto_chegada} `
+
+    const [InformacaoPontos] = await DB.query(QueryInfo) as any[]
+    const Ponto1 = InformacaoPontos[0]
+    const Ponto2 = InformacaoPontos[1]
+
+    const InfoViagem = {
+        partida_longitude: Ponto1.longitude,
+        partida_latitude: Ponto1.latitude,
+        chegada_longitude: Ponto2.longitude,
+        chegada_latitude: Ponto2.latitude,
+    }
+
+    const Preco = CalcularPreco(InfoViagem)
     const query = `
-        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada) 
-        VALUES (?, ?, ?) 
+        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco) 
+        VALUES (?, ?, ?, ?) 
     `; //calcular o preco 
 
-    const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada])
+    const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada, Preco])
     console.log(Resultado)
 
     Resposta.send()
@@ -55,11 +71,11 @@ router.delete('/carrinho', async (Pedido, Resposta) => {
         DELETE FROM carrinho 
         WHERE id_utilizador = ? AND id_ponto_partida = ? AND id_ponto_chegada = ?
     `;
-    
+
     const [Resultado] = await DB.execute(query, [id, id_ponto_partida, id_ponto_chegada])
-    
+
     console.log(Resultado)
     Resposta.send()
-}) 
+})
 
 module.exports = router
