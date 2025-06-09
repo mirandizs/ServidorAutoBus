@@ -69,7 +69,7 @@ router.delete('/carrinho', async (Pedido, Resposta) => {
 
     const query = `
         DELETE FROM carrinho 
-        WHERE id_utilizador = ? AND id_ponto_partida = ? AND id_ponto_chegada = ?
+        WHERE id_produto = ? AND id_ponto_partida = ? AND id_ponto_chegada = ?
     `;
 
     const [Resultado] = await DB.execute(query, [id, id_ponto_partida, id_ponto_chegada])

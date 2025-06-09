@@ -47,8 +47,10 @@ function ApagarImagemAntiga(Pedido: Express.Request, Resposta:Express.Response, 
 
 
 // Carregar imagem do utilizador
-router.get('/imagens/utilizador/:nif', (Pedido, Resposta) => {
-    const nif = Pedido.params.nif || Pedido.session.dados_utilizador?.nif
+//PARA O WEBSITE
+router.get('/imagens/utilizador', (Pedido, Resposta) => {
+    const nif = Pedido.session.dados_utilizador?.nif
+    //console.log(Pedido.params, 'Teste')
 
     const ImagemUtilizador = ProcurarImagem(nif!)
     if (ImagemUtilizador) {
@@ -60,6 +62,23 @@ router.get('/imagens/utilizador/:nif', (Pedido, Resposta) => {
 
 
 
+
+//PARA A APLICACAO 
+router.get('/imagens/utilizador/:nif', (Pedido, Resposta) => {
+    const nif = Pedido.params.nif || Pedido.session.dados_utilizador?.nif 
+    //console.log(Pedido.params, 'Teste')
+
+    const ImagemUtilizador = ProcurarImagem(nif!)
+    if (ImagemUtilizador) {
+        Resposta.sendFile(ImagemUtilizador)
+    } else {
+        Resposta.status(404).send('Imagem não encontrada');
+    }
+});
+
+
+
+
 // Alterar imagem do utilizador
 router.post('/imagens/utilizador', ApagarImagemAntiga, ProcessarImagemUtilizador.single('foto'), async (Pedido, Resposta) => {
 
@@ -68,6 +87,7 @@ router.post('/imagens/utilizador', ApagarImagemAntiga, ProcessarImagemUtilizador
             Resposta.status(400).send({ message: 'No file uploaded' });
         }
         Resposta.send();
+        console.log("Imagem trocada")
 
     } catch (err: any) {
         console.warn(err);

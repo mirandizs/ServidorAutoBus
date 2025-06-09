@@ -96,6 +96,7 @@ router.patch('/minha-conta', async (Pedido, Resposta) => {
             Pedido.session.dados_utilizador.localidade = localidade;
         }
         Resposta.send();
+        console.log("dados alterados com sucesso!")
     } 
     
     catch (erro) {
