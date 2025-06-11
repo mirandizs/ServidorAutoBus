@@ -1,5 +1,6 @@
 import MySQL from 'mysql2';
 import nodemailer from 'nodemailer';
+import type { Request, Response } from 'express';
 
 // Conexão ao MySQL
 const DB = MySQL.createPool({
@@ -34,9 +35,11 @@ function CalcularPreco(Viagem: any) {
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const Distancia = R * c
-    const Preco = Distancia/10
-    return Preco; 
+    const Preco = Distancia / 10
+    return Preco;
 }
+
+
 
 export {
     DB, ServicoEmail, CalcularPreco

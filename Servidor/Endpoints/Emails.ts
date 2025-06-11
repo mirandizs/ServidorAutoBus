@@ -202,32 +202,32 @@ router.post('/email-contacto', async (Pedido, Resposta) => {
 
 
 
-router.post('/verificar-codigo', async (Pedido, Resposta) => {
-    const { codigo } = Pedido.body; // Pega o codigo do body do pedido
+// router.post('/verificar-codigo', async (Pedido, Resposta) => {
+//     const { codigo } = Pedido.body; // Pega o codigo do body do pedido
 
-    if (Pedido.session.codigo_confirmacao) {
-        if (Pedido.session.codigo_confirmacao == codigo) {
-            //Pedido.session.em_verificacao = true;
+//     if (Pedido.session.codigo_confirmacao) {
+//         if (Pedido.session.codigo_confirmacao == codigo) {
+//             //Pedido.session.em_verificacao = true;
 
-            // Remover o código da sessão
-            delete Pedido.session.codigo_confirmacao;
-            console.log('Código de confirmação verificado com sucesso:', codigo);
+//             // Remover o código da sessão
+//             delete Pedido.session.codigo_confirmacao;
+//             console.log('Código de confirmação verificado com sucesso:', codigo);
 
-            Resposta.send(true); // Envia resposta positiva
-            console.log('Não há codigos na sessão');
-        } 
+//             Resposta.send(true); // Envia resposta positiva
+//             console.log('Não há codigos na sessão');
+//         } 
         
-        else {
-            Resposta.statusMessage = 'Código inválido';
-            Resposta.status(401).send(); // Código errado
-        }
-    } 
+//         else {
+//             Resposta.statusMessage = 'Código inválido';
+//             Resposta.status(401).send(); // Código errado
+//         }
+//     } 
     
-    else {
-        Resposta.statusMessage = 'Não tem login';
-        Resposta.status(401).send(); // Não há código na sessão
-    }
-});
+//     else {
+//         Resposta.statusMessage = 'Não tem login';
+//         Resposta.status(401).send(); // Não há código na sessão
+//     }
+// });
 
 
 

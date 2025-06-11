@@ -38,6 +38,7 @@ function ProcurarImagem(NIF: string | number) {
 
 function ApagarImagemAntiga(Pedido: Express.Request, Resposta:Express.Response, next:NextFunction) {
 
+    
     const ImagemAntiga = ProcurarImagem(Pedido.session.dados_utilizador!.nif!)
     if (ImagemAntiga) {
         fs.unlinkSync(ImagemAntiga); // apaga a imagem antiga
