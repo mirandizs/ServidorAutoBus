@@ -28,6 +28,8 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 })
 
 
+
+
 // router de adicionar um bilhete ao carrinho
 router.post('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
