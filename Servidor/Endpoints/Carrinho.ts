@@ -9,6 +9,7 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 
     const query = `
         SELECT 
+            carrinho.id_produto,
             carrinho.preco,
             carrinho.id_ponto_partida,
             carrinho.id_ponto_chegada,
@@ -65,16 +66,13 @@ router.post('/carrinho', async (Pedido, Resposta) => {
 
 
 router.delete('/carrinho', async (Pedido, Resposta) => {
-    const id = Pedido.session.dados_utilizador?.id_utilizador
-    const id_ponto_partida = Pedido.body.id_ponto_partidaq
-    const id_ponto_chegada = Pedido.body.id_ponto_chegada
-
+    const id = Pedido.body.id_produto
     const query = `
         DELETE FROM carrinho 
-        WHERE id_produto = ? AND id_ponto_partida = ? AND id_ponto_chegada = ?
+        WHERE id_produto = ?
     `;
 
-    const [Resultado] = await DB.execute(query, [id, id_ponto_partida, id_ponto_chegada])
+    const [Resultado] = await DB.execute(query, [id])
 
     console.log(Resultado)
     Resposta.send()
