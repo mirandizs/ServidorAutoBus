@@ -51,15 +51,18 @@ router.post('/carrinho', async (Pedido, Resposta) => {
     }
 
     const Preco = CalcularPreco(InfoViagem)
+    
     const query = `
-        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco) 
-        VALUES (?, ?, ?, ?) 
+        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, tipo_viagem) 
+        VALUES (?, ?, ?, ?, ?) 
     `; //calcular o preco 
 
-    const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada, Preco])
+    const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada, Preco,
+                                                Pedido.body.tipo_viagem]) //, Pedido.body.data_ida, Pedido.body.data_volta
+    console.log("Bilhete adicionado ao carrinho ")
     console.log(Resultado)
 
-    Resposta.send()
+    Resposta.send({ success: true })
 })
 
 
@@ -67,6 +70,7 @@ router.post('/carrinho', async (Pedido, Resposta) => {
 
 router.delete('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.body.id_produto
+    
     const query = `
         DELETE FROM carrinho 
         WHERE id_produto = ?
