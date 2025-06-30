@@ -58,7 +58,15 @@ router.post('/logout', async (Pedido, Resposta) => {
     Resposta.send(true) 
 });
 
+router.get('/verificar_existe', async (Pedido, Resposta) => {
+    const Valores = [Pedido.query.nif, Pedido.query.email]
 
+    const Query = 'SELECT nif, email FROM utilizadores WHERE nif=? OR email=?'
+    const [Resultado] = await DB.execute(Query, Valores) as any[]
+
+    const Existe = Resultado[0] != undefined
+    Resposta.send({existe:Existe})
+})
 
 router.post('/criar_conta', async (Pedido, Resposta) => {
 
@@ -74,6 +82,7 @@ router.post('/criar_conta', async (Pedido, Resposta) => {
         1, // Tipo de utilizador
         1, // Atividade
     ]
+
     
     const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[]
