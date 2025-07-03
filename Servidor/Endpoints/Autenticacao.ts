@@ -83,10 +83,12 @@ router.post('/criar_conta', async (Pedido, Resposta) => {
         1, // Atividade
     ]
 
+    console.log('Campos a inserir:', Campos)
     
     const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[]
 
+    console.log('Resultado da inserção:', Resultado)
 
     if (Resultado.affectedRows > 0) { // Se tiver inserido algum utilizador
         

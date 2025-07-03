@@ -12,6 +12,7 @@ router.post('/email-confirmacao', async (Pedido, Resposta) => {
 
     const emailUtilizador = Pedido.session.dados_utilizador?.email
     const nome = Pedido.session.dados_utilizador?.nome
+    const nif = Pedido.session.dados_utilizador?.nif
 
     const code = Math.floor(Math.random() * 1000000) // Gera um numero aleatorio entre 0 e 999999
 
@@ -200,6 +201,34 @@ router.post('/email-contacto', async (Pedido, Resposta) => {
     }
 });
 
+
+router.post('/verificar-email', async (Pedido, Resposta) => { 
+    const { email } = Pedido.body; // Pega o email do body do pedido
+
+    if (Pedido.session.codigo_confirmacao) {
+        // Verifica se o email corresponde ao da sessão
+        if (Pedido.session.dados_utilizador?.email === email) {
+            // Pedido.session.em_verificacao = true;
+
+            // Remover o código da sessão
+            delete Pedido.session.codigo_confirmacao;
+            console.log('Código de confirmação verificado com sucesso:', Pedido.session.codigo_confirmacao);
+
+            Resposta.send(true); // Envia resposta positiva
+            console.log('Não há códigos na sessão');
+        } 
+        
+        else {
+            Resposta.statusMessage = 'Email inválido';
+            Resposta.status(401).send(); // Código errado
+        }
+    } 
+    
+    else {
+        Resposta.statusMessage = 'Não tem login';
+        Resposta.status(401).send(); // Não há código na sessão
+    }
+})
 
 
 // router.post('/verificar-codigo', async (Pedido, Resposta) => {
