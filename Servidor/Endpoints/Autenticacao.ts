@@ -40,7 +40,7 @@ router.post('/login', async (Pedido, Resposta) => {
         console.log('Sessão iniciada')
     }
     else {
-        Resposta.statusMessage = 'Utilizador ou password invalidos!' // Define a mensagem de erro
+        Resposta.statusMessage = 'Email ou password invalidos!' // Define a mensagem de erro
         Resposta.status(401).send() // Manda um codigo de erro com resposta vazia
     }
 

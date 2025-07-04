@@ -42,19 +42,17 @@ router.post('/comprar', async (Pedido, Resposta) => {
     
     //query para inserir, caso o utilizador queira, os dados do cartão à db 
     const queryGuardarCartao = `
-        INSERT INTO pagamentos (metodo, nome_cartao, numero_cartao, validade, cvv, id_utilizador) 
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO pagamentos (nome_cartao, numero_cartao, validade, id_utilizador) 
+        VALUES (?, ?, ?, ?)
     `;
 
     console.log(informacoesPedido.guardarCartao)
 
     if (informacoesPedido.guardarCartao) {
         const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
-            informacoesPedido.metodo,
             informacoesPedido.nome_cartao,
             informacoesPedido.numero_cartao,
             informacoesPedido.validade,
-            informacoesPedido.cvv,
             idUtilizador
         ]) // executa a query com os valores passados.
         // console.log(GuardarCartao)
