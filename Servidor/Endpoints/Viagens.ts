@@ -6,12 +6,12 @@ import { CalcularPreco, DB } from '../Globais.ts';
 
 router.get('/viagens', async (Pedido, Resposta) => {
 
-    const local_partida = Pedido.query.local_partida
-    const local_chegada = Pedido.query.local_chegada
+  const local_partida = Pedido.query.local_partida
+  const local_chegada = Pedido.query.local_chegada
 
-    const hora_ida = Pedido.query.hora_ida
+  const hora_ida = Pedido.query.hora_ida
 
-    const QUERY = `
+  const QUERY = `
       SELECT 
           p1.idautocarro,
           p1.local AS local_partida,
@@ -35,13 +35,24 @@ router.get('/viagens', async (Pedido, Resposta) => {
       ORDER BY p1.hora_partida ASC;
     `
 
-    const [Resultado] = await DB.query(QUERY) as any[]
+  const [Resultado] = await DB.query(QUERY) as any[]
 
-    for (const Viagem of Resultado){
-      Viagem.preco = CalcularPreco(Viagem)
-    }
-    Resposta.send(Resultado)
+  for (const Viagem of Resultado) {
+    Viagem.preco = CalcularPreco(Viagem)
+  }
+  Resposta.send(Resultado)
 });
+
+router.get('/localidades', async (Pedido, Resposta) => {
+
+
+  const QUERY = `SELECT DISTINCT local, longitude, latitude FROM pontos_rotas;`
+
+  const [Resultado] = await DB.query(QUERY) as any[]
+
+  Resposta.send(Resultado)
+});
+
 
 
 module.exports = router;
