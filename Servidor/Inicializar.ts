@@ -15,6 +15,14 @@ const producao = process.env.NODE_ENV == 'production'
 
 import { OpcoesDB } from './Globais'
 
+const Servidor = express(); // Cria o servidor
+
+Servidor.use(cors({
+    origin: ['http://localhost:4200', 'https://mirandizs.github.io'], // Permite pedidos de localhost:4200 (Angular) e do GitHub Pages
+    credentials: true, // Permite cookies
+}));
+
+
 // SETUP PARA SESSOES (COOKIES).a
 const SQLCookies = new MySQLStore(OpcoesDB);
 const SessionMiddleware = session({
@@ -31,8 +39,6 @@ const SessionMiddleware = session({
 
 
 
-const Servidor = express(); // Cria o servidor
-
 
 // MIDDLEWARE - Funcoes que interceptam pedidos antes de chegar ao servidor
 
@@ -44,12 +50,6 @@ Servidor.use(express.urlencoded({ extended: true }));
 
 // Converte dados de JSON, caso haja
 Servidor.use(express.json());
-
-Servidor.use(cors({
-    origin: ['http://localhost:4200', 'https://mirandizs.github.io'], // Permite pedidos de localhost:4200 (Angular)
-    credentials: true, // Permite cookies
-}));
-
 
 
 // Aqui vai-se buscar todos os endpoints criados noutros ficheiros e adiciona-os ao servidor.
