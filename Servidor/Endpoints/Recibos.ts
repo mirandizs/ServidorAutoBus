@@ -15,7 +15,7 @@ router.get('/compras', async (Pedido, Resposta) => {
     const query = `
         SELECT 
             r.id_compraRealizada,
-            DATE_FORMAT(r.data_compra, '%d/%m/%Y') AS data_compra,  
+            DATE_FORMAT(r.data, '%d/%m/%Y') AS data_compra,  
             r.preco,
             p1.local AS local_partida,
             p2.local AS local_chegada
@@ -36,104 +36,108 @@ router.get('/compras', async (Pedido, Resposta) => {
 //ROUTER DAS COMPRAS
 router.post('/comprar', async (Pedido, Resposta) => {
 
-    const informacoesPedido = Pedido.body // body do pedido, com os dados passados~
-    const idUtilizador = Pedido.session.dados_utilizador?.id_utilizador
+    if (Pedido.session.codigo_confirmacao == Pedido.body.codigo_verificacao) {
+        const informacoesPedido = Pedido.body 
+        const idUtilizador = Pedido.session.dados_utilizador?.id_utilizador
 
-    
-    //query para inserir, caso o utilizador queira, os dados do cartão à db 
-    const queryGuardarCartao = `
+
+        //query para inserir, caso o utilizador queira, os dados do cartão à db 
+        const queryGuardarCartao = `
         INSERT INTO pagamentos (nome_cartao, numero_cartao, validade, id_utilizador) 
         VALUES (?, ?, ?, ?)
     `;
 
-    console.log(informacoesPedido.guardarCartao)
+        const NumCartaoFormatado = informacoesPedido.numero_cartao.replaceAll(' ', '')
 
-    if (informacoesPedido.guardarCartao) {
-        const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
-            informacoesPedido.nome_cartao,
-            informacoesPedido.numero_cartao,
-            informacoesPedido.validade,
-            idUtilizador
-        ]) // executa a query com os valores passados.
-        // console.log(GuardarCartao)
-    }
-    else {
-        console.log("Os dados do cartão não foram guardados.")
-        return;
-    }
-
+        console.log(NumCartaoFormatado, informacoesPedido.numero_cartao)
+        if (informacoesPedido.guardarCartao) {
+            const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
+                informacoesPedido.nome_cartao,
+                NumCartaoFormatado,
+                informacoesPedido.validade,
+                idUtilizador
+            ])
+        }
+        else {
+            console.log("Os dados do cartão não foram guardados.")
+        }
 
 
 
-    // query para buscar os dados do carrinho
-    const query = `
+
+        // query para buscar os dados do carrinho
+        const query = `
         SELECT * FROM carrinho WHERE id_utilizador = ?
     `;
 
-    const [Carrinho] = await DB.execute<any[]>(query, [idUtilizador]) // executa a query com os valores passados. tambem pode usar "as any[]" para evitar erros do typescript
-    console.log(Carrinho)
+        const [Carrinho] = await DB.execute<any[]>(query, [idUtilizador]) // executa a query com os valores passados. tambem pode usar "as any[]" para evitar erros do typescript
+        console.log(Carrinho)
 
 
 
 
-    
-    // query para clonar os dados do carrinho para a entidade compras
-    var queryCompras = `
+
+        // query para clonar os dados do carrinho para a entidade compras
+        var queryCompras = `
         INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo) 
         VALUES 
     `;
 
-    
-    const ValoresPassados:any[] = []
 
-    //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
-    Carrinho.forEach((Bilhete: any) => {
-        queryCompras += `(?, ?, ?, ?, ?, ?, ?),`;
-        ValoresPassados.push(
-            idUtilizador, 
-            Bilhete.id_ponto_partida, 
-            Bilhete.id_ponto_chegada, 
-            Bilhete.preco,
-            Bilhete.data,
-            Bilhete.hora,
-            Bilhete.tipo
-        )
-    });
-    queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
+        const ValoresPassados: any[] = []
 
-    const [Resultado] = await DB.execute(queryCompras, ValoresPassados) // executa a query com os valores passados. 
-    console.log(Resultado)
+        //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
+        Carrinho.forEach((Bilhete: any) => {
+            queryCompras += `(?, ?, ?, ?, ?, ?, ?),`;
+            ValoresPassados.push(
+                idUtilizador,
+                Bilhete.id_ponto_partida,
+                Bilhete.id_ponto_chegada,
+                Bilhete.preco,
+                Bilhete.data,
+                Bilhete.hora,
+                Bilhete.tipo
+            )
+        });
+        queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
 
-
+        const [Resultado] = await DB.execute(queryCompras, ValoresPassados) // executa a query com os valores passados. 
+        console.log(Resultado)
 
 
 
-    //query para remover os dados do carrinho após ser adicionado à entidade compras
-    const queryRemoverCarrinho = `
+
+
+        //query para remover os dados do carrinho após ser adicionado à entidade compras
+        const queryRemoverCarrinho = `
         DELETE FROM carrinho WHERE id_utilizador = ?
     `;
 
-    await DB.execute(queryRemoverCarrinho, [idUtilizador]) // executa a query com os valores passados.
-    Resposta.send()
+        await DB.execute(queryRemoverCarrinho, [idUtilizador]) // executa a query com os valores passados.
+        Resposta.send()
+    } else {
+        Resposta.status(401).send({ erro: "Código de confirmação inválido." });
+    }
+
 });
 
 
 
 
 function gerarCodigo() {
-  let codigo = '';
-  for (let i = 0; i < 10; i++) {
-    codigo += Math.floor(Math.random() * 10); // Gera um número entre 0 e 9
-  }
-  return codigo;
+    let codigo = '';
+    for (let i = 0; i < 10; i++) {
+        codigo += Math.floor(Math.random() * 10); // Gera um número entre 0 e 9
+    }
+    return codigo;
 }
 
 function gerarCodigoV() {
     let codigo = '';
-  for (let i = 0; i < 4; i++) {
-    codigo += Math.floor(Math.random() * 10); // Gera um número entre 0 e 9
-  }
-  return codigo;
+    for (let i = 0; i < 4; i++) {
+        codigo += Math.floor(Math.random() * 10); // Gera um número entre 0 e 9
+    }
+    return codigo;
 }
 
 
@@ -196,7 +200,7 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     const y = 40; // Common Y position for both
     doc.image(logoPath, x, y, { align: 'center', width: 120 })
 
-    
+
     // QR CODE
     const qrSize = 150;
     const margin = 60;

@@ -82,4 +82,19 @@ router.delete('/carrinho', async (Pedido, Resposta) => {
     Resposta.send()
 })
 
+router.get('/cartao', async (Pedido, Resposta) => {
+    const id = Pedido.session.dados_utilizador?.id_utilizador
+    
+    const query = `
+        SELECT * FROM pagamentos 
+        WHERE id_utilizador = ? 
+        ORDER BY id_pagamento DESC
+    `;
+
+    const [Resultado] = await DB.execute(query, [id]) as any[]
+
+    Resposta.send(Resultado[0])
+})
+
+
 module.exports = router

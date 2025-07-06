@@ -9,7 +9,7 @@ const OpcoesDB = {
     host: producao ? 'sql8.freesqldatabase.com' : 'localhost',
     user: producao ? 'sql8788598' : 'root',
     password: producao ? 'DCEsAiJmje' : '',
-    database: 'sql8788598',
+    database: producao ? 'sql8788598' : 'pap',
 };
 const DB = MySQL.createPool({
     ...OpcoesDB,
