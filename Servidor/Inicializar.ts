@@ -22,7 +22,11 @@ const SessionMiddleware = session({
     store: SQLCookies,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, httpOnly: true, }
+    cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    }
 })
 
 
@@ -51,13 +55,13 @@ Servidor.use(cors({
 // Aqui vai-se buscar todos os endpoints criados noutros ficheiros e adiciona-os ao servidor.
 // Nao e necessario fazer isto, e apenas para organizacao
 const Pasta = __dirname + '/Endpoints'; // Pega no nome da pasta onde estao os endpoints
-fs.readdirSync(Pasta).forEach((Ficheiro:string) => {
-    const Router = require("./Endpoints/"+Ficheiro);
+fs.readdirSync(Pasta).forEach((Ficheiro: string) => {
+    const Router = require("./Endpoints/" + Ficheiro);
     Servidor.use('/api/', Router)
 });
 
 
 // Comeca o servidor no porte definido
-Servidor.listen(3000, ()=>{
+Servidor.listen(3000, () => {
     console.log('Servidor a correr')
 })

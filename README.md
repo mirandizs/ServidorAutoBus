@@ -31,3 +31,9 @@ application/x-www-form-urlencoded
 (Nome da propriedade) não é parte de .session (Pedido/Request .session)
 
 Para resolver isto, tens que adicionar uma certa propriedade ao tipo de SessionData. Isto encontra-se na pasta "types", no ficheiro session-data.d.ts
+
+## Publicar alteracoes do backend
+1. Dar commit das alteracoes (sync tb)
+2. Ir a https://dashboard.render.com/web/srv-d1l8qa7diees73fcanlg/events
+3. Carregar na seta para baixo no butao que diz "Manual Deploy"
+4. Selecionar opcao "Deploy latest commit"
