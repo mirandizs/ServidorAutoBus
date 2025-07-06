@@ -2,9 +2,11 @@
   "name": "servidorautobus",
   "version": "1.0.0",
   "description": "",
-  "main": "Servidor/index.ts",
+  "main": "build/Servidor/Inicializar.js",
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "start": "node build/Servidor/Inicializar.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",

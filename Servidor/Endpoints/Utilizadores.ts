@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { DB } from '../Globais.ts';
+import { DB } from '../Globais';
 
 
 
@@ -23,14 +23,4 @@ router.get('/utilizadores/:nif', async (Pedido, Resposta) => {
     
     Resposta.send(Resultado[0])
 });
-
-router.post('/verificar-conta', async (Pedido, Resposta) => {
-    if (Pedido.session.codigo_confirmacao == Pedido.body.codigo){
-        // verificar conta
-        Resposta.send()
-    }else{
-        Resposta.status(401).send()
-    }
-})
-
 module.exports = router;

@@ -1,5 +1,5 @@
 import express from 'express'
-import { DB } from '../Globais.ts';
+import { DB } from '../Globais';
 import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
 
@@ -79,7 +79,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
     
     // query para clonar os dados do carrinho para a entidade compras
     var queryCompras = `
-        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco) 
+        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo) 
         VALUES 
     `;
 
@@ -88,12 +88,15 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
     //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
     Carrinho.forEach((Bilhete: any) => {
-        queryCompras += `(?, ?, ?, ?),`;
+        queryCompras += `(?, ?, ?, ?, ?, ?, ?),`;
         ValoresPassados.push(
             idUtilizador, 
             Bilhete.id_ponto_partida, 
             Bilhete.id_ponto_chegada, 
-            Bilhete.preco
+            Bilhete.preco,
+            Bilhete.data,
+            Bilhete.hora,
+            Bilhete.tipo
         )
     });
     queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL

@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { CalcularPreco, DB } from '../Globais.ts';
+import { CalcularPreco, DB } from '../Globais';
 
 
 
@@ -10,8 +10,11 @@ router.get('/viagens', async (Pedido, Resposta) => {
   const local_chegada = Pedido.query.local_chegada
 
   const hora_ida = Pedido.query.hora_ida
+  const hora_volta = Pedido.query.hora_volta
+  const tipo_viagem = Pedido.query.tipo_viagem
 
-  const QUERY = `
+
+  let QueryIda = `
       SELECT 
           p1.idautocarro,
           p1.local AS local_partida,
@@ -28,19 +31,47 @@ router.get('/viagens', async (Pedido, Resposta) => {
       FROM pontos_rotas p1
       INNER JOIN pontos_rotas p2 ON p1.idautocarro = p2.idautocarro
       INNER JOIN autocarro a ON a.idautocarro = p1.idautocarro
-      WHERE p1.local = '${local_partida}' 
-        AND p2.local = '${local_chegada}'
-        AND p1.hora_partida >= '${hora_ida}'
+      WHERE p1.local = ?
+        AND p2.local = ?
         AND p1.hora_partida < p2.hora_partida
-      ORDER BY p1.hora_partida ASC;
     `
+  let QueryVolta = QueryIda
 
-  const [Resultado] = await DB.query(QUERY) as any[]
+  const ValoresIda = [local_partida, local_chegada]
+  const ValoresVolta = [local_chegada, local_partida]
 
-  for (const Viagem of Resultado) {
-    Viagem.preco = CalcularPreco(Viagem)
+  if (hora_ida) {
+    QueryIda += ` AND p1.hora_partida >= ?`
+    ValoresIda.push(hora_ida)
   }
-  Resposta.send(Resultado)
+  if (hora_volta) {
+    ValoresVolta.push(hora_volta)
+    QueryVolta += ` AND p1.hora_partida >= ?`
+  }
+
+
+  QueryIda += ` ORDER BY p1.hora_partida ASC`
+  QueryVolta += ` ORDER BY p1.hora_partida ASC`
+
+  let ResultadoVolta
+  const [ResultadoIda] = await DB.execute(QueryIda, ValoresIda) as any[]
+  for (const Viagem of ResultadoIda) {
+    Viagem.preco = CalcularPreco(Viagem)
+    Viagem.tipo = 'Ida'
+  }
+
+  if (tipo_viagem == 'IdaVolta') {
+    [ResultadoVolta] = await DB.execute(QueryVolta, ValoresVolta) as any[]
+    for (const Viagem of ResultadoVolta) {
+      Viagem.preco = CalcularPreco(Viagem)
+      Viagem.tipo = 'Volta'
+    }
+  }
+
+  Resposta.send({
+    ViagensIda: ResultadoIda,
+    ViagensVolta: ResultadoVolta,
+  })
 });
 
 router.get('/localidades', async (Pedido, Resposta) => {

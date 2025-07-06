@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { DB } from '../Globais.ts';
+import { DB } from '../Globais';
 
 
 
@@ -26,7 +26,7 @@ router.post('/login', async (Pedido, Resposta) => {
 
     // Verifica que os valores do SELECT sao iguais aos que estao presentes no ficheiro dados-utilizador.d.ts, senao o autocomplete pode ter coisas em falta
 
-    
+
     const [Resultado] = await DB.execute(QUERY, [Email, Password]) as any[] // Executa a query com os valores passados. Utiliza-se "as any[]" para evitar erros do typescript
 
 
@@ -52,10 +52,10 @@ router.post('/login', async (Pedido, Resposta) => {
 
 // Destroi a sessao do utilizador, apagando todos os dados
 router.post('/logout', async (Pedido, Resposta) => {
-    Pedido.session.destroy(()=>{
+    Pedido.session.destroy(() => {
         console.log('Sessao terminada')
     })
-    Resposta.send(true) 
+    Resposta.send(true)
 });
 
 router.get('/verificar_existe', async (Pedido, Resposta) => {
@@ -65,41 +65,55 @@ router.get('/verificar_existe', async (Pedido, Resposta) => {
     const [Resultado] = await DB.execute(Query, Valores) as any[]
 
     const Existe = Resultado[0] != undefined
-    Resposta.send({existe:Existe})
+    Resposta.send({ existe: Existe })
 })
 
 router.post('/criar_conta', async (Pedido, Resposta) => {
 
     const Campos = Pedido.body // Body do pedido, com os dados passados
-    const ValoresParaInserir = [
-        Campos.nome,
-        Campos.nif,
-        Campos.nascimento,
-        Campos.telefone,
-        Campos.localidade,
-        Campos.email,
-        Campos.password,
-        1, // Tipo de utilizador
-        1, // Atividade
-    ]
 
-    console.log('Campos a inserir:', Campos)
-    
-    const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[]
+    if (Pedido.session.codigo_confirmacao == Campos.codigo_confirmacao) {
+        const ValoresParaInserir = [
+            Campos.nome,
+            Campos.nif,
+            Campos.nascimento,
+            Campos.telefone,
+            Campos.localidade,
+            Campos.email,
+            Campos.password,
+            1, // Tipo de utilizador
+            1, // Atividade
+        ]
 
-    console.log('Resultado da inserção:', Resultado)
 
-    if (Resultado.affectedRows > 0) { // Se tiver inserido algum utilizador
-        
-        Pedido.session.dados_utilizador = Campos // guarda a sessao do utilizador
-        Pedido.session.utilizador = Campos.nome
-        
-        console.log('Conta criada')
-        Resposta.redirect('/foto_perfil'); // Envia os dados do utilizador de volta
+
+        try {
+            const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[];
+
+            Pedido.session.dados_utilizador = Campos
+            Pedido.session.utilizador = Campos.nome
+
+            Resposta.send()
+
+        } catch (err: any) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                if (err.sqlMessage.includes('email')) {
+                    Resposta.status(400).json({ erro: "O email já está em uso" });
+                } else if (err.sqlMessage.includes('nif')) {
+                    Resposta.status(400).json({ erro: "O NIF já está em uso" });
+                } else {
+                    Resposta.status(400).json({ erro: "Valor duplicado" });
+                }
+            } else {
+                console.error(err);
+                Resposta.status(500).json({ erro: "Erro interno do servidor" });
+            }
+        }
+
     } else {
-        Resposta.statusMessage = 'Erro a criar conta!' // Define a mensagem de erro
-        Resposta.status(401).send() // Manda um codigo de erro com resposta vazia
+        Resposta.statusMessage = 'Codigo de confirmação inválido!'
+        Resposta.status(401).send()
     }
 })
 

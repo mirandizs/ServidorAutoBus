@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { DB } from '../Globais.ts';
+import { DB } from '../Globais';
 import multer from 'multer';
 
 

@@ -4,11 +4,37 @@
       {
         "type": "node",
         "request": "launch",
-        "name": "Run npm dev",
+        "name": "Testar Servidor",
         "runtimeExecutable": "npm",
         "runtimeArgs": [
           "run",
           "dev"
+        ],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}"
+      },
+
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Rodar ficheiros compilados",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run",
+          "start",
+        ],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}"
+      },
+
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Compilar projeto",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run",
+          "build",
         ],
         "console": "integratedTerminal",
         "cwd": "${workspaceFolder}"

@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { DB, ServicoEmail } from '../Globais.ts';
+import { DB, ServicoEmail } from '../Globais';
 import { Console } from 'console';
 
 
@@ -10,9 +10,25 @@ import { Console } from 'console';
 // Gera um codigo de confirmacao aleatorio e guarda na sessao. A verificacao de codigo e realizada em outros endpoints que precisam de confirmacao
 router.post('/email-confirmacao', async (Pedido, Resposta) => {
 
-    const emailUtilizador = Pedido.session.dados_utilizador?.email
+    let emailUtilizador = Pedido.session.dados_utilizador?.email
     const nome = Pedido.session.dados_utilizador?.nome
     const nif = Pedido.session.dados_utilizador?.nif
+
+
+    // Aqui usamos o email mandado pelo body, apenas para quando se está a criar uma conta
+    if (!emailUtilizador) {
+        const Email = Pedido.body.email
+
+        // Verifica se o email existe na base de dados para evitar que seja de um utilizador já existente
+        const [Existe] = await DB.execute('SELECT email FROM utilizadores WHERE email = ?', [Email]) as any
+
+        if (Existe.length > 0) {
+            Resposta.status(401).send() // Nao autorizado
+            return
+        } else {
+            emailUtilizador = Email
+        }
+    }
 
     const code = Math.floor(Math.random() * 1000000) // Gera um numero aleatorio entre 0 e 999999
 
@@ -200,63 +216,6 @@ router.post('/email-contacto', async (Pedido, Resposta) => {
         Resposta.status(500).send('Erro no servidor');
     }
 });
-
-
-router.post('/verificar-email', async (Pedido, Resposta) => { 
-    const { email } = Pedido.body; // Pega o email do body do pedido
-
-    if (Pedido.session.codigo_confirmacao) {
-        // Verifica se o email corresponde ao da sessão
-        if (Pedido.session.dados_utilizador?.email === email) {
-            // Pedido.session.em_verificacao = true;
-
-            // Remover o código da sessão
-            delete Pedido.session.codigo_confirmacao;
-            console.log('Código de confirmação verificado com sucesso:', Pedido.session.codigo_confirmacao);
-
-            Resposta.send(true); // Envia resposta positiva
-            console.log('Não há códigos na sessão');
-        } 
-        
-        else {
-            Resposta.statusMessage = 'Email inválido';
-            Resposta.status(401).send(); // Código errado
-        }
-    } 
-    
-    else {
-        Resposta.statusMessage = 'Não tem login';
-        Resposta.status(401).send(); // Não há código na sessão
-    }
-})
-
-
-// router.post('/verificar-codigo', async (Pedido, Resposta) => {
-//     const { codigo } = Pedido.body; // Pega o codigo do body do pedido
-
-//     if (Pedido.session.codigo_confirmacao) {
-//         if (Pedido.session.codigo_confirmacao == codigo) {
-//             //Pedido.session.em_verificacao = true;
-
-//             // Remover o código da sessão
-//             delete Pedido.session.codigo_confirmacao;
-//             console.log('Código de confirmação verificado com sucesso:', codigo);
-
-//             Resposta.send(true); // Envia resposta positiva
-//             console.log('Não há codigos na sessão');
-//         } 
-        
-//         else {
-//             Resposta.statusMessage = 'Código inválido';
-//             Resposta.status(401).send(); // Código errado
-//         }
-//     } 
-    
-//     else {
-//         Resposta.statusMessage = 'Não tem login';
-//         Resposta.status(401).send(); // Não há código na sessão
-//     }
-// });
 
 
 

@@ -1,5 +1,6 @@
 import express from 'express' // Gestor do servidor
 import session from 'express-session' // Gestor de sessoes
+import { dirname } from 'path'
 const MySQLStore = require('express-mysql-session')(session) // Connecta sessoes ao MySQL, para guardar
 const multer = require('multer') // Gestor de ficheiros
 const fs = require('fs') // Para aceder pastas
@@ -46,7 +47,7 @@ Servidor.use(cors({
 
 // Aqui vai-se buscar todos os endpoints criados noutros ficheiros e adiciona-os ao servidor.
 // Nao e necessario fazer isto, e apenas para organizacao
-const Pasta = "./Servidor/Endpoints"
+const Pasta = __dirname + '/Endpoints'; // Pega no nome da pasta onde estao os endpoints
 fs.readdirSync(Pasta).forEach((Ficheiro:string) => {
     const Router = require("./Endpoints/"+Ficheiro);
     Servidor.use('/api/', Router)

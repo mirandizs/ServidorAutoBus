@@ -4,10 +4,9 @@
     "module": "node18",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "build",
+    "outDir": "./build",
+    "rootDir": ".",
     "strict": true,
-    "noEmit":true,
-    "allowImportingTsExtensions": true,
   },
-  "include": ["Servidor", "types"]
+  "include": ["./Servidor", "./types"]
 }

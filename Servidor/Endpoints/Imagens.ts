@@ -4,7 +4,7 @@ const router = express.Router()
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
-import { DB } from '../Globais.ts';
+import { DB } from '../Globais';
 
 
 const storage = multer.diskStorage({ //multer é para processar imagens em url_search params

@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import { CalcularPreco, DB } from '../Globais.ts';
+import { CalcularPreco, DB } from '../Globais';
 
 
 //router para obter os bilhetes no carrinho
@@ -53,12 +53,12 @@ router.post('/carrinho', async (Pedido, Resposta) => {
     const Preco = CalcularPreco(InfoViagem)
     
     const query = `
-        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, tipo_viagem) 
-        VALUES (?, ?, ?, ?, ?) 
+        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, tipo, data, hora) 
+        VALUES (?, ?, ?, ?, ?, ?, ?) 
     `; //calcular o preco 
 
     const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada, Preco,
-                                                Pedido.body.tipo_viagem]) //, Pedido.body.data_ida, Pedido.body.data_volta
+                                                Pedido.body.tipo, Pedido.body.data, Ponto1.hora_partida]) //, Pedido.body.data_ida, Pedido.body.data_volta
     console.log("Bilhete adicionado ao carrinho ")
     console.log(Resultado)
 
