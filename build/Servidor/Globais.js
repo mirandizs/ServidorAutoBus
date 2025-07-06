@@ -3,16 +3,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServicoEmail = exports.DB = void 0;
+exports.OpcoesDB = exports.ServicoEmail = exports.DB = void 0;
 exports.CalcularPreco = CalcularPreco;
 const mysql2_1 = __importDefault(require("mysql2"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const producao = process.env.NODE_ENV == 'production';
 // Conexão ao MySQL
-const DB = mysql2_1.default.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
+const OpcoesDB = {
+    host: producao ? 'sql8.freesqldatabase.com' : 'localhost',
+    user: producao ? 'sql8788598' : 'root',
+    password: producao ? 'DCEsAiJmje' : '',
     database: 'pap',
+};
+exports.OpcoesDB = OpcoesDB;
+const DB = mysql2_1.default.createPool({
+    ...OpcoesDB,
     dateStrings: true, // Para que as datas sejam enviadas como strings, em vez de objetos Date
 }).promise();
 exports.DB = DB;

@@ -1,13 +1,18 @@
 import MySQL from 'mysql2';
 import nodemailer from 'nodemailer';
 import type { Request, Response } from 'express';
+const producao = process.env.NODE_ENV == 'production'
 
 // Conexão ao MySQL
-const DB = MySQL.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
+
+const OpcoesDB = {
+    host: producao ? 'sql8.freesqldatabase.com' : 'localhost',
+    user: producao ? 'sql8788598' : 'root',
+    password: producao ? 'DCEsAiJmje' : '',
     database: 'pap',
+};
+const DB = MySQL.createPool({
+    ...OpcoesDB,
     dateStrings: true, // Para que as datas sejam enviadas como strings, em vez de objetos Date
 }).promise();
 
@@ -42,5 +47,5 @@ function CalcularPreco(Viagem: any) {
 
 
 export {
-    DB, ServicoEmail, CalcularPreco
-};
+    DB, ServicoEmail, CalcularPreco, OpcoesDB
+}

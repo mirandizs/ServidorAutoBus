@@ -1,19 +1,22 @@
 import express from 'express' // Gestor do servidor
 import session from 'express-session' // Gestor de sessoes
-import { dirname } from 'path'
+import path from 'path'
+
 const MySQLStore = require('express-mysql-session')(session) // Connecta sessoes ao MySQL, para guardar
 const multer = require('multer') // Gestor de ficheiros
 const fs = require('fs') // Para aceder pastas
 const cors = require('cors') // Para ser possivel fazer pedidos de outros dominios (Do localhost:4200 para o localhost:3000 neste caso)
 
+
+import dotenv from 'dotenv';
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+console.log('A iniciar o servidor no environmento:', process.env.NODE_ENV);
+const producao = process.env.NODE_ENV == 'production'
+
+import { OpcoesDB } from './Globais'
+
 // SETUP PARA SESSOES (COOKIES).a
-const SessionDatabase = {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'sessoes'
-};
-const SQLCookies = new MySQLStore(SessionDatabase);
+const SQLCookies = new MySQLStore(OpcoesDB);
 const SessionMiddleware = session({
     secret: 'uh*&T*8787GT^hk0a(#R)@',
     store: SQLCookies,

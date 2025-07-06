@@ -5,18 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express")); // Gestor do servidor
 const express_session_1 = __importDefault(require("express-session")); // Gestor de sessoes
+const path_1 = __importDefault(require("path"));
 const MySQLStore = require('express-mysql-session')(express_session_1.default); // Connecta sessoes ao MySQL, para guardar
 const multer = require('multer'); // Gestor de ficheiros
 const fs = require('fs'); // Para aceder pastas
 const cors = require('cors'); // Para ser possivel fazer pedidos de outros dominios (Do localhost:4200 para o localhost:3000 neste caso)
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '.env') });
+console.log('A iniciar o servidor no environmento:', process.env.NODE_ENV);
+const producao = process.env.NODE_ENV == 'production';
+const Globais_1 = require("./Globais");
 // SETUP PARA SESSOES (COOKIES).a
-const SessionDatabase = {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'sessoes'
-};
-const SQLCookies = new MySQLStore(SessionDatabase);
+const SQLCookies = new MySQLStore(Globais_1.OpcoesDB);
 const SessionMiddleware = (0, express_session_1.default)({
     secret: 'uh*&T*8787GT^hk0a(#R)@',
     store: SQLCookies,
