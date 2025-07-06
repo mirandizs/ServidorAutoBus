@@ -13,7 +13,7 @@ const OpcoesDB = {
     host: producao ? 'sql8.freesqldatabase.com' : 'localhost',
     user: producao ? 'sql8788598' : 'root',
     password: producao ? 'DCEsAiJmje' : '',
-    database: 'pap',
+    database: 'sql8788598',
 };
 exports.OpcoesDB = OpcoesDB;
 const DB = mysql2_1.default.createPool({

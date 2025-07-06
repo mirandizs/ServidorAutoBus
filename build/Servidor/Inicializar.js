@@ -33,7 +33,7 @@ Servidor.use(express_1.default.urlencoded({ extended: true }));
 // Converte dados de JSON, caso haja
 Servidor.use(express_1.default.json());
 Servidor.use(cors({
-    origin: 'http://localhost:4200', // Permite pedidos de localhost:4200 (Angular)
+    origin: ['http://localhost:4200'], // Permite pedidos de localhost:4200 (Angular)
     credentials: true, // Permite cookies
 }));
 // Aqui vai-se buscar todos os endpoints criados noutros ficheiros e adiciona-os ao servidor.
