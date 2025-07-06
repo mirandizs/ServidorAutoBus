@@ -42,7 +42,7 @@ Servidor.use(express.urlencoded({ extended: true }));
 Servidor.use(express.json());
 
 Servidor.use(cors({
-    origin: ['http://localhost:4200'], // Permite pedidos de localhost:4200 (Angular)
+    origin: ['http://localhost:4200', 'https://mirandizs.github.io'], // Permite pedidos de localhost:4200 (Angular)
     credentials: true, // Permite cookies
 }));
 
