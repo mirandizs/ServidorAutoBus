@@ -15,8 +15,9 @@ router.get('/carrinho', async (Pedido, Resposta) => {
             carrinho.id_ponto_chegada,
             partida.local AS local_partida,
             chegada.local AS local_chegada,
-            partida.hora_partida AS hora_partida
-        
+            partida.hora_partida AS hora_partida,
+            
+                
         FROM carrinho 
         INNER JOIN pontos_rotas AS partida ON carrinho.id_ponto_partida = partida.id_ponto
         INNER JOIN pontos_rotas AS chegada ON carrinho.id_ponto_chegada = chegada.id_ponto
@@ -27,6 +28,8 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 
     Resposta.send(Resultado)
 })
+
+// colocar longitude e latitude na query do carrinho para mostrar a distancia no carrinho 
 
 
 
