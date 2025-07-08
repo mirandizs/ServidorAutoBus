@@ -79,7 +79,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         // query para clonar os dados do carrinho para a entidade compras
         var queryCompras = `
-        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo) 
+        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo, distancia_km, duracao_estimada) 
         VALUES 
     `;
 
@@ -88,7 +88,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
         Carrinho.forEach((Bilhete: any) => {
-            queryCompras += `(?, ?, ?, ?, ?, ?, ?),`;
+            queryCompras += `(?, ?, ?, ?, ?, ?, ?, ?, ?),`;
             ValoresPassados.push(
                 idUtilizador,
                 Bilhete.id_ponto_partida,
@@ -96,7 +96,9 @@ router.post('/comprar', async (Pedido, Resposta) => {
                 Bilhete.preco,
                 Bilhete.data,
                 Bilhete.hora,
-                Bilhete.tipo
+                Bilhete.tipo,
+                Bilhete.distancia_km,
+                Bilhete.duracao_estimada
             )
         });
         queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
@@ -156,10 +158,15 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     const query = `
         SELECT 
         r.id_compraRealizada,
-        DATE_FORMAT(r.data_compra, '%d/%m/%Y') AS data_compra,  
+        DATE_FORMAT(r.data, '%d/%m/%Y') AS data_compra,  
         r.preco,
+        r.hora,
+        r.tipo,
+        r.distancia_km,
+        r.duracao_estimada,
         p1.local AS local_partida,
         p2.local AS local_chegada,
+        p1.hora_partida AS hora_partida,
         u.nome,
         u.nif,
         pg.metodo
@@ -176,7 +183,6 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     const [result] = await DB.execute<any[]>(query, [idUtilizador, idCompra]);
 
     const dados = result[0];
-
 
     const numeroBilhete = gerarCodigo();
     const codigoReserva = gerarCodigo();
@@ -232,13 +238,12 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     doc.fontSize(14).fillColor('#003366').text('Detalhes da Viagem', { underline: true }).moveDown(0.5);
     doc.fontSize(12).fillColor('black');
     doc.text(`Data: ${dados.data_compra}`);
-    doc.text(`Hora Partida: 06:00`);
+    doc.text(`Hora Partida: ${dados.hora_partida}`);
     doc.text(`Origem: ${dados.local_partida}`);
     doc.text(`Destino: ${dados.local_chegada}`);
     doc.text(`Hora Chegada: `);
-    doc.text(`Duração: `);
+    doc.text(`Duração: ${dados.duracao_estimada}`);
     doc.text(`Autocarro: ${dados.idautocarro}`);
-    doc.text(`Lugar: 24`);
 
     // CÓDIGOS
     doc.fontSize(12).text(`Reserva: ${codigoReserva}`);

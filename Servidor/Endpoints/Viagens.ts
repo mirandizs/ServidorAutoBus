@@ -4,6 +4,33 @@ import { CalcularPreco, DB } from '../Globais';
 
 
 
+function calcularDistanciaKm(lat1: any, lon1 : any, lat2 : any, lon2: any) {
+  const R = 6371; // raio da Terra em km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function toRad(graus: any) {
+  return graus * (Math.PI / 180);
+}
+
+function calcularDuracaoEmTexto(distanciaKm: any, velocidadeMediaKmH = 80) {
+  const horas = distanciaKm / velocidadeMediaKmH;
+  const h = Math.floor(horas);
+  const m = Math.round((horas - h) * 60);
+  return `${h}h ${m}min`;
+}
+
+
+
+
+
+
 router.get('/viagens', async (Pedido, Resposta) => {
 
   const local_partida = Pedido.query.local_partida
@@ -58,6 +85,16 @@ router.get('/viagens', async (Pedido, Resposta) => {
   for (const Viagem of ResultadoIda) {
     Viagem.preco = CalcularPreco(Viagem)
     Viagem.tipo = 'Ida'
+
+    const distancia = calcularDistanciaKm(
+      Viagem.partida_latitude,
+      Viagem.partida_longitude,
+      Viagem.chegada_latitude,
+      Viagem.chegada_longitude
+    );
+
+    Viagem.distancia_km = parseFloat(distancia.toFixed(2));
+    Viagem.duracao_estimada = calcularDuracaoEmTexto(distancia);
   }
 
   if (tipo_viagem == 'IdaVolta') {
