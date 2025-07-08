@@ -47,9 +47,8 @@ router.post('/comprar', async (Pedido, Resposta) => {
         VALUES (?, ?, ?, ?)
     `;
 
-        const NumCartaoFormatado = informacoesPedido.numero_cartao.replaceAll(' ', '')
+        const NumCartaoFormatado = String(informacoesPedido.numero_cartao).replaceAll(' ', '')
 
-        console.log(NumCartaoFormatado, informacoesPedido.numero_cartao)
         if (informacoesPedido.guardarCartao) {
             const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
                 informacoesPedido.nome_cartao,
@@ -71,7 +70,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
     `;
 
         const [Carrinho] = await DB.execute<any[]>(query, [idUtilizador]) // executa a query com os valores passados. tambem pode usar "as any[]" para evitar erros do typescript
-        console.log(Carrinho)
+
 
 
 
@@ -104,7 +103,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
         queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
 
         const [Resultado] = await DB.execute(queryCompras, ValoresPassados) // executa a query com os valores passados. 
-        console.log(Resultado)
+        console.log('compra executada')
 
 
 
@@ -168,8 +167,7 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
         p2.local AS local_chegada,
         p1.hora_partida AS hora_partida,
         u.nome,
-        u.nif,
-        pg.metodo
+        u.nif
         FROM compras AS r
         INNER JOIN pontos_rotas AS p1 ON r.id_ponto_partida = p1.id_ponto
         INNER JOIN pontos_rotas AS p2 ON r.id_ponto_chegada = p2.id_ponto
@@ -177,6 +175,8 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
         INNER JOIN pagamentos AS pg ON r.id_utilizador = pg.id_utilizador
         WHERE r.id_utilizador = ? AND r.id_compraRealizada = ?
     `;
+
+    // pg.metodo N existe, tirei
 
     const LocalPartida = Pedido.query.localPartida;
 

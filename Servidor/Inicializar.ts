@@ -8,10 +8,10 @@ const fs = require('fs') // Para aceder pastas
 const cors = require('cors') // Para ser possivel fazer pedidos de outros dominios (Do localhost:4200 para o localhost:3000 neste caso)
 
 
-import dotenv from 'dotenv';
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-console.log('A iniciar o servidor no environmento:', process.env.NODE_ENV);
-const producao = process.env.NODE_ENV == 'production'
+// import dotenv from 'dotenv';
+// dotenv.config({ path: path.resolve(__dirname, '.env') });
+// console.log('A iniciar o servidor no environmento:', process.env.NODE_ENV);
+// const producao = process.env.NODE_ENV == 'production'
 
 import { OpcoesDB } from './Globais'
 
