@@ -230,8 +230,7 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     doc.fontSize(9).font('Times-Roman').text(`Preço: €`);
     doc.fontSize(14).font('Times-Bold').text(`${dados.preco.toFixed(2)}`).moveDown(0.7)
 
-    doc.fontSize(9).font('Times-Roman').text(`Pagamento: ${dados.metodo}`);
-    doc.fontSize(14).font('Times-Bold').text(`Canal: Website`)
+    // doc.fontSize(9).font('Times-Roman').text(`Pagamento: ${dados.metodo}`);
 
 
     // INFO VIAGEM
