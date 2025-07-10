@@ -26,7 +26,19 @@ function calcularDuracaoEmTexto(distanciaKm: any, velocidadeMediaKmH = 80) {
   return `${h}h ${m}min`;
 }
 
+function calcularHoraChegada(horaPartida: string, duracaoEstimada: string): string {
+  const [horasPartida, minutosPartida] = horaPartida.split(':').map(Number);
+  const [hText, mText] = duracaoEstimada.replace('min', '').split('h').map(t => t.trim());
+  const horasDuracao = parseInt(hText) || 0;
+  const minutosDuracao = parseInt(mText) || 0;
 
+  let totalMinutos = horasPartida * 60 + minutosPartida + horasDuracao * 60 + minutosDuracao;
+  let horasChegada = Math.floor(totalMinutos / 60) % 24;
+  let minutosChegada = totalMinutos % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${pad(horasChegada)}:${pad(minutosChegada)}:00`;
+}
 
 
 
@@ -95,6 +107,7 @@ router.get('/viagens', async (Pedido, Resposta) => {
 
     Viagem.distancia_km = parseFloat(distancia.toFixed(2));
     Viagem.duracao_estimada = calcularDuracaoEmTexto(distancia);
+    Viagem.hora_chegada = calcularHoraChegada(Viagem.hora_partida, Viagem.duracao_estimada);
   }
 
   if (tipo_viagem == 'IdaVolta') {

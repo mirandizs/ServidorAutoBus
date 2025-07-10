@@ -15,6 +15,7 @@ router.get('/carrinho', async (Pedido, Resposta) => {
     const query = `
         SELECT 
             chegada.idautocarro,
+            carrinho.hora_chegada,
             carrinho.distancia_km,
             carrinho.duracao_estimada,
             carrinho.tipo,
@@ -66,19 +67,35 @@ router.post('/carrinho', async (Pedido, Resposta) => {
         chegada_latitude: Ponto2.latitude,
         hora_partida: Ponto1.hora_partida,
         distancia_km: Pedido.body.distancia_km,
-        duracao_estimada: Pedido.body.duracao_estimada
-
+        duracao_estimada: Pedido.body.duracao_estimada,
+        hora_chegada: Pedido.body.hora_chegada
     }
 
     const Preco = CalcularPreco(InfoViagem)
     
     const query = `
-        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, tipo, data, hora, distancia_km, duracao_estimada) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        INSERT INTO carrinho (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, tipo, data, hora, distancia_km, duracao_estimada, hora_chegada) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
     `; //calcular o preco 
 
+    const campos = {
+        id,
+        id_ponto_partida: Pedido.body.id_ponto_partida,
+        id_ponto_chegada: Pedido.body.id_ponto_chegada,
+        preco: Preco,
+        tipo: Pedido.body.tipo,
+        data: Pedido.body.data,
+        hora: Ponto1.hora_partida,
+        distancia_km: Pedido.body.distancia_km,
+        duracao_estimada: Pedido.body.duracao_estimada,
+        hora_chegada: Pedido.body.hora_chegada,
+    };
+
+    console.log(campos)
+
     const [Resultado] = await DB.execute(query, [id, Pedido.body.id_ponto_partida, Pedido.body.id_ponto_chegada, Preco,
-                                                Pedido.body.tipo, Pedido.body.data, Ponto1.hora_partida, Pedido.body.distancia_km, Pedido.body.duracao_estimada]) //, Pedido.body.data_ida, Pedido.body.data_volta
+                                                Pedido.body.tipo, Pedido.body.data, Ponto1.hora_partida, Pedido.body.distancia_km, 
+                                                Pedido.body.duracao_estimada, Pedido.body.hora_chegada]) //, Pedido.body.data_ida, Pedido.body.data_volta
     console.log("Bilhete adicionado ao carrinho ")
     console.log(Resultado)
 

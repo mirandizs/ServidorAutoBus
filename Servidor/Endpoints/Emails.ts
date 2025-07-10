@@ -193,8 +193,9 @@ router.post('/email-contacto', async (Pedido, Resposta) => {
 
 
         const OpcoesEmail = {
-            from: email,
+            from: 'autobus.pap@gmail.com',
             to: 'autobus.pap@gmail.com',
+            replyTo: email,
             subject: assunto,
             html: html,
         }

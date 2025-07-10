@@ -47,19 +47,28 @@ router.post('/comprar', async (Pedido, Resposta) => {
         VALUES (?, ?, ?, ?)
     `;
 
-        const NumCartaoFormatado = String(informacoesPedido.numero_cartao).replaceAll(' ', '')
+    const campos = {
+        nome_cartao: Pedido.body.nome_cartao,
+        numero_cartao: Pedido.body.numero_cartao,
+        validade: Pedido.body.validade,
+        id_utilizador: idUtilizador,
+    }
 
-        if (informacoesPedido.guardarCartao) {
-            const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
-                informacoesPedido.nome_cartao,
-                NumCartaoFormatado,
-                informacoesPedido.validade,
-                idUtilizador
-            ])
-        }
-        else {
-            console.log("Os dados do cartão não foram guardados.")
-        }
+    console.log(campos)
+
+    const NumCartaoFormatado = String(informacoesPedido.numero_cartao).replaceAll(' ', '')
+
+    if (informacoesPedido.guardarCartao) {
+        const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
+            informacoesPedido.nome_cartao,
+            NumCartaoFormatado,
+            informacoesPedido.validade,
+            idUtilizador
+        ])
+    }
+    else {
+        console.log("Os dados do cartão não foram guardados.")
+    }
 
 
 
@@ -78,7 +87,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         // query para clonar os dados do carrinho para a entidade compras
         var queryCompras = `
-        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo, distancia_km, duracao_estimada) 
+        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo, distancia_km, duracao_estimada, hora_chegada, tipo_pagamento) 
         VALUES 
     `;
 
@@ -87,7 +96,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
         Carrinho.forEach((Bilhete: any) => {
-            queryCompras += `(?, ?, ?, ?, ?, ?, ?, ?, ?),`;
+            queryCompras += `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),`;
             ValoresPassados.push(
                 idUtilizador,
                 Bilhete.id_ponto_partida,
@@ -97,7 +106,9 @@ router.post('/comprar', async (Pedido, Resposta) => {
                 Bilhete.hora,
                 Bilhete.tipo,
                 Bilhete.distancia_km,
-                Bilhete.duracao_estimada
+                Bilhete.duracao_estimada,
+                Bilhete.hora_chegada,
+                Bilhete.tipo_pagamento
             )
         });
         queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
@@ -163,6 +174,8 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
         r.tipo,
         r.distancia_km,
         r.duracao_estimada,
+        r.hora_chegada,
+        r.tipo_pagamento,
         p1.local AS local_partida,
         p2.local AS local_chegada,
         p1.hora_partida AS hora_partida,
