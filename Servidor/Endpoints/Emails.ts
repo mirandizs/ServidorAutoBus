@@ -30,7 +30,8 @@ router.post('/email-confirmacao', async (Pedido, Resposta) => {
         }
     }
 
-    const code = Math.floor(Math.random() * 1000000) // Gera um numero aleatorio entre 0 e 999999
+    const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0')
+ // Gera um numero aleatorio entre 0 e 999999
 
     const html = `
             <div style='

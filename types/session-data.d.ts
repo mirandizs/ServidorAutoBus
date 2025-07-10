@@ -6,7 +6,7 @@ declare module "express-session" {
   interface SessionData {
     utilizador: string;
     dados_utilizador:DadosUtilizador;
-    codigo_confirmacao: number;
+    codigo_confirmacao: string;
     // codigo_confirmacao?: string | number;
     // em_verificacao?: boolean;
   }
