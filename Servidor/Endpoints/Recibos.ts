@@ -37,7 +37,7 @@ router.get('/compras', async (Pedido, Resposta) => {
 router.post('/comprar', async (Pedido, Resposta) => {
 
     if (Pedido.session.codigo_confirmacao == Pedido.body.codigo_verificacao) {
-        const informacoesPedido = Pedido.body 
+        const informacoesPedido = Pedido.body
         const idUtilizador = Pedido.session.dados_utilizador?.id_utilizador
 
 
@@ -47,29 +47,28 @@ router.post('/comprar', async (Pedido, Resposta) => {
         VALUES (?, ?, ?, ?)
     `;
 
-    const campos = {
-        nome_cartao: Pedido.body.nome_cartao,
-        numero_cartao: Pedido.body.numero_cartao,
-        validade: Pedido.body.validade,
-        id_utilizador: idUtilizador,
-    }
+        const campos = {
+            nome_cartao: Pedido.body.nome_cartao,
+            numero_cartao: Pedido.body.numero_cartao,
+            validade: Pedido.body.validade,
+            id_utilizador: idUtilizador,
+        }
 
-    console.log(campos)
+        //console.log(campos)
 
-    const NumCartaoFormatado = String(informacoesPedido.numero_cartao).replaceAll(' ', '')
+        const NumCartaoFormatado = String(informacoesPedido.numero_cartao).replaceAll(' ', '')
 
-    if (informacoesPedido.guardarCartao) {
-        const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
-            informacoesPedido.nome_cartao,
-            NumCartaoFormatado,
-            informacoesPedido.validade,
-            idUtilizador
-        ])
-    }
-    else {
-        console.log("Os dados do cartão não foram guardados.")
-    }
-
+        if (informacoesPedido.guardarCartao) {
+            const [GuardarCartao] = await DB.execute(queryGuardarCartao, [
+                informacoesPedido.nome_cartao,
+                NumCartaoFormatado,
+                informacoesPedido.validade,
+                idUtilizador
+            ])
+        }
+        else {
+            console.log("Os dados do cartão não foram guardados.")
+        }
 
 
 
@@ -87,7 +86,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         // query para clonar os dados do carrinho para a entidade compras
         var queryCompras = `
-        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo, distancia_km, duracao_estimada, hora_chegada, tipo_pagamento) 
+        INSERT INTO compras (id_utilizador, id_ponto_partida, id_ponto_chegada, preco, data, hora, tipo, distancia_km, duracao_estimada, hora_chegada) 
         VALUES 
     `;
 
@@ -96,7 +95,7 @@ router.post('/comprar', async (Pedido, Resposta) => {
 
         //for para inserir os dados do carrinho, não importa a quantidade de bilhetes que o utilizador tem no carrinho, ele vai inserir todos os dados na tabela compras
         Carrinho.forEach((Bilhete: any) => {
-            queryCompras += `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),`;
+            queryCompras += `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),`;
             ValoresPassados.push(
                 idUtilizador,
                 Bilhete.id_ponto_partida,
@@ -108,7 +107,6 @@ router.post('/comprar', async (Pedido, Resposta) => {
                 Bilhete.distancia_km,
                 Bilhete.duracao_estimada,
                 Bilhete.hora_chegada,
-                Bilhete.tipo_pagamento
             )
         });
         queryCompras = queryCompras.slice(0, -1); // remove a última vírgula para nao dar erro de sintaxe de SQL
