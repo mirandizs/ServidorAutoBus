@@ -40,7 +40,7 @@ function CalcularPreco(Viagem: any) {
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const Distancia = R * c
-    const Preco = Distancia / 10
+    const Preco = Distancia / 15
     return Preco;
 }
 

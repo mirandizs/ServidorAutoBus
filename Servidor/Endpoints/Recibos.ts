@@ -177,6 +177,7 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
         r.duracao_estimada,
         r.hora_chegada,
         r.tipo_pagamento,
+        a.numero,
         p1.local AS local_partida,
         p2.local AS local_chegada,
         p1.hora_partida AS hora_partida,
@@ -187,6 +188,7 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
         INNER JOIN pontos_rotas AS p2 ON r.id_ponto_chegada = p2.id_ponto
         INNER JOIN utilizadores AS u ON r.id_utilizador = u.id_utilizador
         INNER JOIN pagamentos AS pg ON r.id_utilizador = pg.id_utilizador
+        INNER JOIN autocarro AS a ON a.idautocarro = p1.idautocarro
         WHERE r.id_utilizador = ? AND r.id_compraRealizada = ?
     `;
 
@@ -197,6 +199,8 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     const [result] = await DB.execute<any[]>(query, [idUtilizador, idCompra]);
 
     const dados = result[0];
+
+    console.log(dados)
 
     const numeroBilhete = gerarCodigo();
     const codigoReserva = gerarCodigo();
@@ -227,54 +231,60 @@ router.get('/recibo/:id', async (Pedido, Resposta) => {
     const qrX = doc.page.width - qrSize - margin; // Align to the right
     doc.image(qrBuffer, qrX, y, { width: qrSize }).moveDown(5)
 
-    doc.moveDown(5);
+    // CÓDIGOS
+    doc.fontSize(12).font('Helvetica').text(`Reserva: ${codigoReserva}`, { align: 'right', width: doc.page.width - 4.5 * margin});
+    doc.font('Helvetica').text(`Nº Bilhete: ${numeroBilhete}`, { align: 'right', width: doc.page.width - 4.5 * margin});
+    doc.font('Helvetica').text(`Pagamento ID: ${gerarCodigo()}_${Math.floor(Math.random() * 9)}`, { align: 'right', width: doc.page.width - 4.5 * margin});
+    doc.font('Helvetica').text(`Código Viagem: ${codigoViagem}`, { align: 'right', width: doc.page.width - 4.5 * margin})
+
+    doc.moveDown(1);
 
     // Optional: right-align the text too
     doc.fontSize(7).text('Apresenta este QR Code ao motorista.', {
         align: 'right',
         width: doc.page.width - 2 * margin
     })
-
-
+    
     // DADOS PESSOAIS
     doc.fillColor('black').fontSize(12);
-    doc.fontSize(9).font('Times-Roman').text(`Nome:`);
-    doc.fontSize(14).font('Times-Bold').text(`${dados.nome}`).moveDown(0.7)
+    doc.fontSize(9).font('Helvetica').text(`Nome:`); 
+    doc.fontSize(12).font('Helvetica-Bold').text(`${dados.nome}`).moveDown(0.7)
 
-    doc.fontSize(9).font('Times-Roman').text(`Preço: €`);
-    doc.fontSize(14).font('Times-Bold').text(`${dados.preco.toFixed(2)}`).moveDown(0.7)
+    doc.fontSize(9).font('Helvetica').text(`Preço: `);
+    doc.fontSize(12).font('Helvetica-Bold').text(`${dados.preco.toFixed(2)} €`).moveDown(0.7)
+
+    doc.fontSize(9).font('Helvetica').text(`NIF: `);
+    doc.fontSize(12).font('Helvetica-Bold').text(`${dados.nif.toFixed(2)}`).moveDown(2.5)
 
     // doc.fontSize(9).font('Times-Roman').text(`Pagamento: ${dados.metodo}`);
 
 
     // INFO VIAGEM
-    doc.fontSize(14).fillColor('#003366').text('Detalhes da Viagem', { underline: true }).moveDown(0.5);
+    doc.fontSize(16).fillColor('#03033b').text('Detalhes da Viagem').moveDown(0.7);
     doc.fontSize(12).fillColor('black');
-    doc.text(`Data: ${dados.data_compra}`);
-    doc.text(`Hora Partida: ${dados.hora_partida}`);
-    doc.text(`Origem: ${dados.local_partida}`);
-    doc.text(`Destino: ${dados.local_chegada}`);
-    doc.text(`Hora Chegada: `);
-    doc.text(`Duração: ${dados.duracao_estimada}`);
-    doc.text(`Autocarro: ${dados.idautocarro}`);
+    doc.fontSize(12).font('Helvetica').text(`Data da viagem: ${dados.data_compra}`).moveDown(0.2);
+    doc.text(`Origem: ${dados.local_partida}`).moveDown(0.2);
+    doc.text(`Destino: ${dados.local_chegada}`).moveDown(0.2);
+    doc.text(`Hora de partida: ${dados.hora_partida}`).moveDown(0.2);
+    doc.text(`Hora de chegada: ${dados.hora_chegada}`).moveDown(0.2);
+    doc.text(`Duração estimada da viagem: ${dados.duracao_estimada}`).moveDown(0.2);
+    doc.text(`Distância em km: ${dados.distancia_km}`).moveDown(0.2);
+    doc.text(`Autocarro Nº: ${dados.numero}`).moveDown(2);
 
-    // CÓDIGOS
-    doc.fontSize(12).text(`Reserva: ${codigoReserva}`);
-    doc.text(`Nº Bilhete: ${numeroBilhete}`);
-    doc.text(`Pagamento ID: ${gerarCodigo()}_${Math.floor(Math.random() * 9)}`);
-    doc.text(`Código Viagem: ${codigoViagem}`).moveDown(2);
 
     // INFO EXTRA
-    doc.fontSize(11).text('Checklist antes da viagem', { underline: true }).moveDown(0.3);
-    doc.fontSize(10).list([
+    doc.fontSize(16).font('Helvetica-Bold').fillColor('#03033b').text('Checklist antes da viagem', { underline: true }).moveDown(1);
+    doc.fontSize(10).fillColor('black').list([
         'Chega pelo menos 15 minutos antes da partida.',
         'Utiliza cadeado e identifica sempre a bagagem.',
         'Documentos e objetos de valor devem acompanhar o passageiro.',
         'Não te esqueças do teu cartão de cidadão/passaporte.',
-    ]).moveDown();
+    ]).moveDown(3);
 
 
-    doc.fontSize(10).text('Call Center: +351 916 942 618 (todos os dias das 7h às 22h)').moveDown(2);
+    doc.fontSize(16).font('Helvetica-Bold').fillColor('#03033b').text('Apoio ao cliente').moveDown(1);
+    doc.fontSize(10).text('Linha telefónica: +351 916 942 618').moveDown(0.2);
+    doc.fontSize(10).text('E-mail: autobus.pap@gmail.com').moveDown(0.2);
 
     doc.end();
     console.log("recibo tranferido!")
