@@ -54,10 +54,19 @@ router.get('/imagens/utilizador', (Pedido, Resposta) => {
     //console.log(Pedido.params, 'Teste')
 
     const ImagemUtilizador = ProcurarImagem(nif!)
+    
     if (ImagemUtilizador) {
         Resposta.sendFile(ImagemUtilizador)
-    } else {
-        Resposta.status(404).send('Imagem não encontrada');
+    } 
+    
+    else {
+        // Caminho para a imagem default
+        const imagemDefault = path.join(__dirname, '..', 'img', 'default-profile.png');
+        if (fs.existsSync(imagemDefault)) {
+            Resposta.sendFile(imagemDefault);
+        } else {
+            Resposta.status(404).send('Imagem não encontrada nem imagem padrão existente.');
+        }
     }
 });
 
