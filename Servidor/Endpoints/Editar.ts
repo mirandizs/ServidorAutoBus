@@ -5,9 +5,10 @@ import multer from 'multer';
 
 
 
-router.patch('/definicoes/editar-utilizador', async (Pedido, Resposta) => {
+router.patch('/editar-utilizador', async (Pedido, Resposta) => {
     const Body = Pedido.body // Body do pedido, com os dados passados
     const id = Pedido.session.dados_utilizador?.id_utilizador
+    console.log(Body)
 
     const query = `
             UPDATE utilizadores 
@@ -16,12 +17,13 @@ router.patch('/definicoes/editar-utilizador', async (Pedido, Resposta) => {
                 nascimento = ?, 
                 localidade = ?,
                 telefone = ?,
-                email = ?,
                 tipo_utilizador = ?,
                 atividade = ?
             WHERE id_utilizador = ?`
 
-    await DB.execute(query, [Body.nome, Body.nascimento, Body.localidade, Body.telefone, Body.email, Body.tipo_utilizador, Body.atividade, id])
+    console.log([Body.nome, Body.nascimento, Body.localidade, Body.telefone,Body.tipo_utilizador, Body.atividade, id])
+    await DB.execute(query, [Body.nome, Body.nascimento, Body.localidade, Body.telefone,Body.tipo_utilizador, Body.atividade, id])
+
 
     Resposta.send(true)
 });
@@ -104,6 +106,37 @@ router.patch('/minha-conta', async (Pedido, Resposta) => {
         Resposta.status(500).send({ sucesso: false, erro: 'Erro ao editar dados.' });
     }
 });
+
+
+router.patch('/desativarConta', async (Pedido, Resposta) => {
+    const id = Pedido.session.dados_utilizador?.id_utilizador
+
+    if (!id) {
+        Resposta.statusMessage = 'Sessão inválida!';
+        Resposta.status(401).send();
+    }
+
+    const query = `
+        UPDATE utilizadores 
+        SET atividade = 0
+        WHERE id_utilizador = ?`
+
+    try {
+        await DB.execute(query, [id])
+
+        Pedido.session.destroy(() => {
+                console.log('Conta desativada e sessão terminada');
+        });
+
+        // Resposta.statusMessage = "Conta desativada com sucesso."
+        Resposta.send({ mensagem: 'Conta desativada com sucesso.' });
+    }
+
+    catch (erro) {
+        console.error(erro);
+        Resposta.status(500).send({ erro: 'Erro ao desativar a conta.' });
+    }
+})
 
 
 module.exports = router

@@ -31,14 +31,21 @@ router.post('/login', async (Pedido, Resposta) => {
 
 
     if (Resultado.length > 0) { // Se o resultado tiver algum utilizador
-
         const DadosUtilizador = Resultado[0]
+        const atividadeConta = DadosUtilizador.atividade
+
+        if (atividadeConta === 0) {
+            Resposta.statusMessage = 'A sua conta está inativa. Contacte o administrador.';
+            Resposta.status(403).send();
+        }
+
         Pedido.session.dados_utilizador = DadosUtilizador
         Pedido.session.utilizador = DadosUtilizador.nome // Guarda o email na sessao
 
         Resposta.send(DadosUtilizador) // Envia os dados do utilizador de volta
         console.log('Sessão iniciada')
     }
+
     else {
         Resposta.statusMessage = 'Email ou password invalidos!' // Define a mensagem de erro
         Resposta.status(401).send() // Manda um codigo de erro com resposta vazia
@@ -85,13 +92,16 @@ router.post('/criar_conta', async (Pedido, Resposta) => {
             1, // Atividade
         ]
 
-
-
         try {
             const QUERY = `INSERT INTO utilizadores (nome, nif, nascimento, telefone, localidade, email, password, tipo_utilizador, atividade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             const [Resultado] = await DB.execute(QUERY, ValoresParaInserir) as any[];
 
-            Pedido.session.dados_utilizador = Campos
+            const  Query = `SELECT id_utilizador, nif, nome, nascimento, telefone, localidade, email, tipo_utilizador, atividade
+                            FROM utilizadores 
+                            WHERE nif = ?`
+            const [dadosUtilizador] = await DB.execute(Query, [Campos.nif]) as any[]
+
+            Pedido.session.dados_utilizador = dadosUtilizador[0]
             Pedido.session.utilizador = Campos.nome
 
             Resposta.send()

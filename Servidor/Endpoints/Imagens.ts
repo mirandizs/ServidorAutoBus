@@ -51,23 +51,29 @@ function ApagarImagemAntiga(Pedido: Express.Request, Resposta:Express.Response, 
 //PARA O WEBSITE
 router.get('/imagens/utilizador', (Pedido, Resposta) => {
     const nif = Pedido.session.dados_utilizador?.nif
-    //console.log(Pedido.params, 'Teste')
 
-    const ImagemUtilizador = ProcurarImagem(nif!)
+    if (nif) {
+        const ImagemUtilizador = ProcurarImagem(nif!)
     
-    if (ImagemUtilizador) {
-        Resposta.sendFile(ImagemUtilizador)
-    } 
-    
-    else {
-        // Caminho para a imagem default
-        const imagemDefault = path.join(__dirname, '..', 'img', 'default-profile.png');
-        if (fs.existsSync(imagemDefault)) {
-            Resposta.sendFile(imagemDefault);
-        } else {
-            Resposta.status(404).send('Imagem não encontrada nem imagem padrão existente.');
+        if (ImagemUtilizador) {
+            Resposta.sendFile(ImagemUtilizador)
+        } 
+        
+        else {
+            // Caminho para a imagem default
+            const imagemDefault = path.join(__dirname, '..', 'img', 'default-profile.png');
+            if (fs.existsSync(imagemDefault)) {
+                Resposta.sendFile(imagemDefault);
+            } else {
+                Resposta.status(404).send('Imagem não encontrada nem imagem padrão existente.');
+            }
         }
     }
+    else {
+        Resposta.status(404).send('Imagem não encontrada nem imagem padrão existente.');
+    }
+
+    
 });
 
 

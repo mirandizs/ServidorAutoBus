@@ -52,6 +52,8 @@ router.get('/carrinho', async (Pedido, Resposta) => {
 router.post('/carrinho', async (Pedido, Resposta) => {
     const id = Pedido.session.dados_utilizador?.id_utilizador
 
+console.log(id)
+
     const QueryInfo = `
       SELECT * FROM pontos_rotas
       WHERE id_ponto = ${Pedido.body.id_ponto_partida} OR id_ponto=${Pedido.body.id_ponto_chegada} `
@@ -78,6 +80,7 @@ router.post('/carrinho', async (Pedido, Resposta) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
     `; //calcular o preco 
 
+    
     const campos = {
         id,
         id_ponto_partida: Pedido.body.id_ponto_partida,
