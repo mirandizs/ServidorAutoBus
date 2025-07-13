@@ -4,7 +4,7 @@ import { CalcularPreco, DB } from '../Globais';
 
 
 
-function calcularDistanciaKm(lat1: any, lon1 : any, lat2 : any, lon2: any) {
+function calcularDistanciaKm(lat1: any, lon1: any, lat2: any, lon2: any) {
   const R = 6371; // raio da Terra em km
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
@@ -41,6 +41,23 @@ function calcularHoraChegada(horaPartida: string, duracaoEstimada: string): stri
 }
 
 
+function CalcularCampos(Viagens: any[]) {
+  for (const Viagem of Viagens) {
+    Viagem.preco = CalcularPreco(Viagem)
+    Viagem.tipo = 'Ida'
+
+    const distancia = calcularDistanciaKm(
+      Viagem.partida_latitude,
+      Viagem.partida_longitude,
+      Viagem.chegada_latitude,
+      Viagem.chegada_longitude
+    );
+
+    Viagem.distancia_km = parseFloat(distancia.toFixed(2));
+    Viagem.duracao_estimada = calcularDuracaoEmTexto(distancia);
+    Viagem.hora_chegada = calcularHoraChegada(Viagem.hora_partida, Viagem.duracao_estimada);
+  }
+}
 
 
 router.get('/viagens', async (Pedido, Resposta) => {
@@ -94,28 +111,12 @@ router.get('/viagens', async (Pedido, Resposta) => {
 
   let ResultadoVolta
   const [ResultadoIda] = await DB.execute(QueryIda, ValoresIda) as any[]
-  for (const Viagem of ResultadoIda) {
-    Viagem.preco = CalcularPreco(Viagem)
-    Viagem.tipo = 'Ida'
 
-    const distancia = calcularDistanciaKm(
-      Viagem.partida_latitude,
-      Viagem.partida_longitude,
-      Viagem.chegada_latitude,
-      Viagem.chegada_longitude
-    );
-
-    Viagem.distancia_km = parseFloat(distancia.toFixed(2));
-    Viagem.duracao_estimada = calcularDuracaoEmTexto(distancia);
-    Viagem.hora_chegada = calcularHoraChegada(Viagem.hora_partida, Viagem.duracao_estimada);
-  }
+  CalcularCampos(ResultadoIda)
 
   if (tipo_viagem == 'IdaVolta') {
     [ResultadoVolta] = await DB.execute(QueryVolta, ValoresVolta) as any[]
-    for (const Viagem of ResultadoVolta) {
-      Viagem.preco = CalcularPreco(Viagem)
-      Viagem.tipo = 'Volta'
-    }
+    CalcularCampos(ResultadoVolta)
   }
 
   Resposta.send({

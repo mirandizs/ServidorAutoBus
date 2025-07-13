@@ -7,8 +7,6 @@ import multer from 'multer';
 
 router.patch('/editar-utilizador', async (Pedido, Resposta) => {
     const Body = Pedido.body // Body do pedido, com os dados passados
-    const id = Pedido.session.dados_utilizador?.id_utilizador
-    console.log(Body)
 
     const query = `
             UPDATE utilizadores 
@@ -21,8 +19,7 @@ router.patch('/editar-utilizador', async (Pedido, Resposta) => {
                 atividade = ?
             WHERE id_utilizador = ?`
 
-    console.log([Body.nome, Body.nascimento, Body.localidade, Body.telefone,Body.tipo_utilizador, Body.atividade, id])
-    await DB.execute(query, [Body.nome, Body.nascimento, Body.localidade, Body.telefone,Body.tipo_utilizador, Body.atividade, id])
+    await DB.execute(query, [Body.nome, Body.nascimento, Body.localidade, Body.telefone,Body.tipo_utilizador, Body.atividade, Body.id_utilizador])
 
 
     Resposta.send(true)
