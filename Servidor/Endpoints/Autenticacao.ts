@@ -37,6 +37,7 @@ router.post('/login', async (Pedido, Resposta) => {
         if (atividadeConta === 0) {
             Resposta.statusMessage = 'A sua conta está inativa. Contacte o administrador.';
             Resposta.status(403).send();
+            return;
         }
 
         Pedido.session.dados_utilizador = DadosUtilizador
