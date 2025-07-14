@@ -11,8 +11,10 @@ import { Console } from 'console';
 router.post('/email-confirmacao', async (Pedido, Resposta) => {
 
     let emailUtilizador = Pedido.session.dados_utilizador?.email
-    const nome = Pedido.session.dados_utilizador?.nome
+    const nome = Pedido.session.dados_utilizador?.nome || "novo utilizador! Seja bem vindo!"
     const nif = Pedido.session.dados_utilizador?.nif
+
+
 
 
     // Aqui usamos o email mandado pelo body, apenas para quando se está a criar uma conta
@@ -62,9 +64,9 @@ router.post('/email-confirmacao', async (Pedido, Resposta) => {
 
                 <hr style='border: 1px solid rgb(0, 0, 150); margin-left: 10px; margin-right: 10px; width: 540px;'><br>
 
-                <div style='margin-left: 10px; color:black; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;'>
-                    <p>Olá, <strong style='color:rgb(0, 0, 150)'>${nome}</strong></p>
-                    <p style='word-wrap: break-word; padding-bottom: 15px; white-space: normal; overflow-wrap: break-word;'>Agradecemos por utilizar o AutoBus. Para continuar com a tua verificação, utiliza o código abaixo:</p>
+                <div style='margin-left: 10px; color:black; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;'<br>
+                    <p>Olá, <strong style='color:rgb(0, 0, 150)'>${nome}</strong></p><br>
+                    <p style='word-wrap: break-word; padding-bottom: 15px; white-space: normal; overflow-wrap: break-word;'>Agradecemos por utilizar o AutoBus. <br>Para continuar com a tua verificação, utiliza o código abaixo:</p>
                     <h2 style='color: rgb(30, 0, 200);padding-bottom: 15px'>${code}</h2>
                     <p style='padding-bottom: 15px'>Se não foste tu a solicitar este código, por favor, ignore este email.</p>
 
